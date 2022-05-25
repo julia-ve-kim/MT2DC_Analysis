@@ -45,17 +45,40 @@ def mT_4vecCalc(p4_vis_array, p4_invis_array):
     mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(Et_vis*Et_invis - pt_vec_vis*pt_vec_invis)))
     return mT 
 
-# Sample Inputs 
-bottom_sideA_array = np.array([1, 2, 3, 4]) # (px, py, pz, E)
-lepton_sideA_array = np.array([1, 1, 2, 5]) 
+# Sample Inputs (of Event 0) 
+# Side A 
+## Bottom 
+bottom_sideA_4_vec_0 = ROOT.TLorentzVector() 
+bottom_sideA_4_vec_0.SetPtEtaPhiM(67.207489, 0.9975629, 1.907112, 4.1980199) 
+bottom_sideA_array = np.array([bottom_sideA_4_vec_0.Px(), bottom_sideA_4_vec_0.Py(), bottom_sideA_4_vec_0.Pz(),
+                      bottom_sideA_4_vec_0.E()])  
+
+## Lepton  
+lepton_sideA_4_vec_0 = ROOT.TLorentzVector() 
+lepton_sideA_4_vec_0.SetPtEtaPhiM(38.303611, -0.903168, -1.591276, 0) 
+lepton_sideA_array = np.array([lepton_sideA_4_vec_0.Px(), lepton_sideA_4_vec_0.Py(), lepton_sideA_4_vec_0.Pz(), 
+                   lepton_sideA_4_vec_0.E()]) 
+
 vis_sideA_array = np.array([bottom_sideA_array, lepton_sideA_array]) 
 
-bottom_sideB_array = np.array([1, 1, 1, 4]) # (px, py, pz, E)
-lepton_sideB_array = np.array([1, 3, 4, 5]) 
+# Side B 
+## Bottom 
+bottom_sideB_4_vec_0 = ROOT.TLorentzVector() 
+bottom_sideB_4_vec_0.SetPtEtaPhiM(47.631183, -0.506519, -2.896362, 4.1980199, 9.1323261) 
+bottom_sideB_array = np.array([bottom_sideB_4_vec_0.Px(), bottom_sideB_4_vec_0.Py(), bottom_sideB_4_vec_0.Pz(), 
+                        bottom_sideB_4_vec_0.E()]) 
+
+## Lepton 
+lepton_sideB_4_vec_0 = ROOT.TLorentzVector() 
+lepton_sideB_4_vec_0.SetPtEtaPhiM(23.143957, 0.7130776, -0.136664, 0) 
+lepton_sideB_array = np.array([lepton_sideB_4_vec_0.Px(), lepton_sideB_4_vec_0.Py(), lepton_sideB_4_vec_0.Pz(), lepton_sideB_4_vec_0.E()]) 
+
 vis_sideB_array = np.array([bottom_sideB_array, lepton_sideB_array]) 
 
-met = np.array([1, 3, 0, 5]) # (px, py, 0, E)
-alphaList = [0.9] 
+# Missing Transverse Energy 
+met = np.array([43.31322198 + 39.68009067, 15.20339773 + 14.40458045, 0, 89.890289]) # (px, py, 0, E)
+
+alphaList = [0.6] 
 
 # Function to Minimise 
 def objective(invis_sideA_array): 
@@ -71,10 +94,23 @@ def objective(invis_sideA_array):
     return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
 
 # Example guess & minimisation execution 
-invis_side_A_array_guess = np.array([1, 2, 0, 1]) # [px, py, pz, E] guess of the invisible neutrino of side A 
+invis_side_A_4_vec_guess = ROOT.TLorentzVector()
+invis_side_A_4_vec_guess.SetPtEtaPhiM(45.904014, -1.744987, 0.3375748, 0) #  guess of the invisible neutrino of side A 
+invis_side_A_array_guess = np.array([invis_side_A_4_vec_guess.Px(), invis_side_A_4_vec_guess.Py(), 
+                                    invis_side_A_4_vec_guess.Pz(), invis_side_A_4_vec_guess.E()])
+
+# [  43.31322198,   15.20339773, -127.41071716,  135.4277274 ] ? 
+
+# invis_side_B_4_vec_guess = ROOT.TLorentzVector() 
+# invis_side_B_4_vec_guess.SetPtEtaPhiM(42.213760, 2.7889766, 0.3482246, 0) 
+# invis_side_B_array_guess = np.array([invis_side_B_4_vec_guess.Px(), invis_side_B_4_vec_guess.Py(), 
+                                  #  invis_side_B_4_vec_guess.Pz(), invis_side_B_4_vec_guess.E()])
+# -> array([ 39.68009067,  14.40458045, 341.99229077, 344.587766  ]) 
 
 #bnds = [(None, None), (None, None), (0, 0), (None, None)] # bounds 
 sol = so.minimize(objective, x0 = invis_side_A_array_guess, method='SLSQP') 
+
+
 
 # TESTS OF FUNCTIONALITY 
 # Et_scalarCalc(m, pt) 
