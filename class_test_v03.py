@@ -55,12 +55,12 @@ def mT_4vecCalc(p4_vis_array, p4_invis_array):
 
 # Create a TH1 histogram 
 # mT2(W) - mT2dc(alpha = 0)  
-h_alpha_1_v02 = ROOT.TH1F("h_alpha_1", "mT2(W) - mT2dc(alpha = 1); Difference (GeV); Number of entries / 1 GeV", 100, -100, 100)
+h_alpha_1_truth_input = ROOT.TH1F("h_alpha_1_truth_input", "mT2(W) - mT2dc(alpha = 0); Difference [GeV]; Number of entries  / 1 GeV", 100, -100, 100)
 
 # Get the number entries in the tree 
 nentries = t.GetEntries() # 60599  
 
-for i in range(0, 10000):
+for i in range(0,10000):
     if (i%1000==0): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -104,7 +104,10 @@ for i in range(0, 10000):
     met = np.array([met_p4.Px(), met_p4.Py(), 0, met_p4.E()]) 
     
     # define initial solution vector 
-    invis_sideA_array_guess = [0, 0, 0, 0] 
+    invis_sideA_p4_guess = ROOT.TLorentzVector() 
+    invis_sideA_p4_guess.SetPtEtaPhiM(t.truth_nu_ell1_PT, t.truth_nu_ell1_Eta, t.truth_nu_ell1_Phi, 0)
+    invis_sideA_array_guess = np.array([invis_sideA_p4_guess.Px(), invis_sideA_p4_guess.Py(), invis_sideA_p4_guess.Pz(),
+                                        invis_sideA_p4_guess.E()])
     
     # define the function to minimise
     def objective(invis_sideA_array):
@@ -122,14 +125,14 @@ for i in range(0, 10000):
                          
     print(mt2_W - sol_array.fun)
     # fill histogram 
-    h_alpha_1_v02.Fill(mt2_W - sol_array.fun) 
+    h_alpha_1_truth_input.Fill(mt2_W - sol_array.fun) 
                          
 # Draw the histograms and save them.
 c = ROOT.TCanvas()
                          
-h_alpha_1_v02.Draw("E") # put error bars 
-c.SaveAs("h_alpha_1_null_input.pdf")
+h_alpha_1_truth_input.Draw("E") # put error bars 
+c.SaveAs("h_alpha_1_truth_input.pdf")
 
-h_alpha_1_v02.Write() 
+h_alpha_1_truth_input.Write() 
 
 f_outputRoot.Close()
