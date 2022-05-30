@@ -17,18 +17,18 @@ t = f_inputRoot.Get("variables")
 type(t)
 f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
 
-
-# Define constants and functions 
+# Define constants 
 alphaList = [1] 
 
+# Define functions
 def Et_scalarCalc(m, pt):
-    """Calculate the transverse energy of a particle, using scalar input variables."""
+    """Calculate the transverse energy of a particle, using the scalar input variables: mass (m) and transverse momentum (pt)."""
     Et = math.sqrt(max(0, m**2+pt**2)) 
     return Et
 
+# Operations Required for TLorentz Vectors 
 def mT_4vecCalc(p4_vis_array, p4_invis_array):
     """Calculate the tranverse mass of a parent particle, using array input variables. 
-    Inputs: p4_vis_array = [px, py, pz, E], p4_invis_array = [px, py, 0, E]. 
     """
   
     # Create TLorentz 4-vectors 
@@ -48,19 +48,22 @@ def mT_4vecCalc(p4_vis_array, p4_invis_array):
     pt_vec_vis = p4_vis.Vect() 
     pt_vec_vis.SetZ(0)
     pt_vec_invis = p4_invis.Vect() 
-   #pt_vec_invis.SetZ(0) 
+    pt_vec_invis.SetZ(0) 
     
     mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(Et_vis*Et_invis - pt_vec_vis*pt_vec_invis)))
     return mT 
 
 # Create a TH1 histogram 
 # mT2(W) - mT2dc(alpha = 0)  
-h_alpha_1_v02 = ROOT.TH1F("h_alpha_1", "mT2(W) - mT2dc(alpha = 1); Difference (GeV); Number of entries / 1 GeV", 100, -100, 100)
-
+h_alpha_1_v02 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2DC; Difference (GeV); Number of entries / 1 GeV", 100, -100, 100)
+h_sol_array = ROOT.TH1F("h_sol_array", "mT2dc(alpha = 1); mT2dc (GeV); Number of entries / 1 GeV", 100, 0, 100)
+notable_sol = [] 
+    
 # Get the number entries in the tree 
 nentries = t.GetEntries() # 60599  
 
-for i in range(0, 10000):
+# Testing Input #2 
+for i in range(0, 1000):
     if (i%1000==0): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -96,7 +99,7 @@ for i in range(0, 10000):
     ell2_sideB_p4.SetPtEtaPhiM(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0) 
     ell2_sideB_array = np.array([ell2_sideB_p4.Px(), ell2_sideB_p4.Py(), ell2_sideB_p4.Pz(), ell2_sideB_p4.E()])
     
-    vis_sideB_array = np.array([ell2_sideB_array, ell2_sideB_array]) 
+    vis_sideB_array = np.array([bjet2_sideB_array, ell2_sideB_array]) 
 
     # get met information 
     met_p4 = ROOT.TLorentzVector()
@@ -104,7 +107,7 @@ for i in range(0, 10000):
     met = np.array([met_p4.Px(), met_p4.Py(), 0, met_p4.E()]) 
     
     # define initial solution vector 
-    invis_sideA_array_guess = [0, 0, 0, 0] 
+    invis_sideA_array_guess = met/2 
     
     # define the function to minimise
     def objective(invis_sideA_array):
@@ -118,18 +121,33 @@ for i in range(0, 10000):
     
         return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
 
-    sol_array = so.minimize(objective, x0 = invis_sideA_array_guess, method='SLSQP') 
-                         
-    print(mt2_W - sol_array.fun)
+    sol_array_1 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
+                            options={'maxiter': 2000, 'xatol': 1e-15, 'fatol': 1e-15, 'adaptive': True})    
+    
+    sol_array_2 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
+                            options={'maxiter': 2000, 'xatol': 1e-15, 'fatol': 1e-15, 'adaptive': False})  
+    
+    sol_fun = min(sol_array_1.fun, sol_array_2.fun) 
+    
+    print('event', i, sol_fun - mt2_W) # event numbers + print mt2_w - sol_array.fun
     # fill histogram 
-    h_alpha_1_v02.Fill(mt2_W - sol_array.fun) 
+    h_alpha_1_v02.Fill(sol_fun - mt2_W) 
+    h_sol_array.Fill(sol_fun)
+    
+    if sol_fun - mt2_W > 1:
+        notable_sol.append([i, sol_fun - mt2_W])
                          
 # Draw the histograms and save them.
+print(notable_sol) 
 c = ROOT.TCanvas()
                          
 h_alpha_1_v02.Draw("E") # put error bars 
-c.SaveAs("h_alpha_1_null_input.pdf")
+c.SaveAs("h_alpha_1_met_refined_test_3.pdf")
+
+h_sol_array.Draw("E") # put error bars 
+c.SaveAs("h_alpha_1_sol_refined_test_3.pdf")
 
 h_alpha_1_v02.Write() 
+h_sol_array.Write() 
 
 f_outputRoot.Close()

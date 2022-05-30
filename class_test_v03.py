@@ -17,50 +17,82 @@ t = f_inputRoot.Get("variables")
 type(t)
 f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
 
-
-# Define constants and functions 
+# Define constants 
 alphaList = [1] 
+notable_sol = [] 
 
-def Et_scalarCalc(m, pt):
-    """Calculate the transverse energy of a particle, using scalar input variables."""
-    Et = math.sqrt(max(0, m**2+pt**2)) 
-    return Et
-
-def mT_4vecCalc(p4_vis_array, p4_invis_array):
-    """Calculate the tranverse mass of a parent particle, using array input variables. 
-    Inputs: p4_vis_array = [px, py, pz, E], p4_invis_array = [px, py, 0, E]. 
+# Define functions
+def mass_scalarCalc(px, py, pz, E): 
+    """Calculate the mass of a particular, using scalar input variables.
     """
-  
-    # Create TLorentz 4-vectors 
-    p4_vis = ROOT.TLorentzVector() 
-    p4_vis.SetPxPyPzE(p4_vis_array[0], p4_vis_array[1], p4_vis_array[2], p4_vis_array[3])
+    m_squared = E**2 - (px**2 + py**2 + pz**2)
+    
+    if m_squared > 0:
+        return np.sqrt(m_squared)
+    return 0 
+
+def ET_scalarCalc(m, pT):
+    """Calculate the transverse energy of a particle, using scalar input variables.
+    """
+    ET = math.sqrt(max(0, m**2+pT**2)) 
+    return ET
+
+def mT_arrayCalc(p4_vis_array, p4_invis_array):
+    """Calculate the transverse mass of a parent particle, using array input variables.
+    Note: p4_(in)vis_array = [px, py, pz, E].
+    """ 
+    # Extract mass information
+    m_vis = max(0, mass_scalarCalc(p4_vis_array[0], p4_vis_array[1], p4_vis_array[2], p4_vis_array[3]))
+    m_invis = max(0, mass_scalarCalc(p4_invis_array[0], p4_invis_array[1], p4_invis_array[2], p4_invis_array[3]))
+    
+    # Get transverse momentum vectors 
+    pT_vis_vec = np.array([p4_vis_array[0], p4_vis_array[1]])  
+    pT_invis_vec = np.array([p4_invis_array[0], p4_invis_array[1]])
+    
+    # Extract energy information 
+    ET_vis = ET_scalarCalc(m_invis, np.linalg.norm(pT_vis_vec)) 
+    ET_invis = ET_scalarCalc(m_invis, np.linalg.norm(pT_invis_vec)) 
    
-    p4_invis = ROOT.TLorentzVector() 
-    p4_invis.SetPxPyPzE(p4_invis_array[0], p4_invis_array[1], p4_invis_array[2], p4_invis_array[3])
-    
-    # Extract mass, energy and transverse momentum information 
-    m_vis = max(0, p4_vis.M()) 
-    m_invis = max(0, p4_invis.M()) 
-    
-    Et_vis = Et_scalarCalc(m_vis, p4_vis.Pt()) 
-    Et_invis = Et_scalarCalc(m_invis, p4_invis.Pt()) 
-    
-    pt_vec_vis = p4_vis.Vect() 
-    pt_vec_vis.SetZ(0)
-    pt_vec_invis = p4_invis.Vect() 
-   #pt_vec_invis.SetZ(0) 
-    
-    mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(Et_vis*Et_invis - pt_vec_vis*pt_vec_invis)))
+    mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(ET_vis*ET_invis - np.dot(pT_vis_vec, pT_invis_vec))))
     return mT 
 
-# Create a TH1 histogram 
-# mT2(W) - mT2dc(alpha = 0)  
-h_alpha_1_truth_input = ROOT.TH1F("h_alpha_1_truth_input", "mT2(W) - mT2dc(alpha = 0); Difference [GeV]; Number of entries  / 1 GeV", 100, -100, 100)
+# Define TLorentzVector module functions 
+def extract_Px(pT, eta, phi, mass): 
+    """Extract Px, from scalar input variables. 
+    """
+    Px = pT*np.cos(phi) 
+    return Px 
+
+def extract_Py(pT, eta, phi, mass):
+    """Extract Py, from scalar input variables.
+    """
+    Py = pT*np.sin(phi) 
+    return Py 
+    
+def extract_Pz(pT, eta, phi, mass):
+    """Extract Pz, from scalar input variables.
+    """ 
+    theta = 2*np.arctan(np.exp(-eta)) # polar angle 
+    Pz = pT/np.tan(theta)
+    return Pz 
+    
+def extract_E(pT, eta, phi, mass):
+    """Extract E, from scalar input variables.
+    """
+    Pz = extract_Pz(pT, eta, phi, mass)
+    E = math.sqrt(mass**2 + (pT**2 + Pz**2))
+    return E 
+    
+# Create TH1 histogram 
+# mT2dc(alpha = 1) - mT2(W)   
+h_alpha_1 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2dc; Difference [GeV]; Number of entries / 1 GeV", 100, -100, 100)
+h_mt2dc_sol = ROOT.TH1F("h_m2tdc_sol", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 100, 0, 100)
+#notable_sol = [] 
 
 # Get the number entries in the tree 
 nentries = t.GetEntries() # 60599  
 
-for i in range(0,10000):
+for i in range(1000):
     if (i%1000==0): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -75,64 +107,84 @@ for i in range(0,10000):
     mt2_W = t.mt2_W_ell1ell2 
     
     # get sideA bjet information 
-    bjet1_sideA_p4 = ROOT.TLorentzVector() 
-    bjet1_sideA_p4.SetPtEtaPhiM(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass) 
-    bjet1_sideA_array = np.array([bjet1_sideA_p4.Px(), bjet1_sideA_p4.Py(), bjet1_sideA_p4.Pz(), bjet1_sideA_p4.E()]) 
+    bjet1_sideA_Px = extract_Px(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass) 
+    bjet1_sideA_Py = extract_Py(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass)
+    bjet1_sideA_Pz = extract_Pz(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass)
+    bjet1_sideA_E = extract_E(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass) 
+    bjet1_sideA_array = np.array([bjet1_sideA_Px, bjet1_sideA_Py, bjet1_sideA_Pz, bjet1_sideA_E]) 
     
     # get sideA lepton information 
-    ell1_sideA_p4 = ROOT.TLorentzVector() 
-    ell1_sideA_p4.SetPtEtaPhiM(t.ell1_PT, t.ell1_Eta, t.ell1_Phi, 0)
-    ell1_sideA_array = np.array([ell1_sideA_p4.Px(), ell1_sideA_p4.Py(), ell1_sideA_p4.Pz(), ell1_sideA_p4.E()])
+    ell1_sideA_Px = extract_Px(t.ell1_PT, t.ell1_Eta, t.ell1_Phi, 0) 
+    ell1_sideA_Py = extract_Py(t.ell1_PT, t.ell1_Eta, t.ell1_Phi, 0)
+    ell1_sideA_Pz = extract_Pz(t.ell1_PT, t.ell1_Eta, t.ell1_Phi, 0)
+    ell1_sideA_E = extract_E(t.ell1_PT, t.ell1_Eta, t.ell1_Phi, 0) 
+    ell1_sideA_array = np.array([ell1_sideA_Px, ell1_sideA_Py, ell1_sideA_Pz, ell1_sideA_E]) 
     
     vis_sideA_array = np.array([bjet1_sideA_array, ell1_sideA_array]) 
     
     # get sideB bjet information
-    bjet2_sideB_p4 = ROOT.TLorentzVector() 
-    bjet2_sideB_p4.SetPtEtaPhiM(t.bjet2_PT, t.bjet2_Eta, t.bjet2_Phi, t.bjet2_Mass) 
-    bjet2_sideB_array = np.array([bjet2_sideB_p4.Px(), bjet2_sideB_p4.Py(), bjet2_sideB_p4.Pz(), bjet2_sideB_p4.E()])
+    bjet2_sideB_Px = extract_Px(t.bjet2_PT, t.bjet2_Eta, t.bjet2_Phi, t.bjet2_Mass) 
+    bjet2_sideB_Py = extract_Py(t.bjet2_PT, t.bjet2_Eta, t.bjet2_Phi, t.bjet2_Mass)
+    bjet2_sideB_Pz = extract_Pz(t.bjet2_PT, t.bjet2_Eta, t.bjet2_Phi, t.bjet2_Mass)
+    bjet2_sideB_E = extract_E(t.bjet2_PT, t.bjet2_Eta, t.bjet2_Phi, t.bjet2_Mass) 
+    bjet2_sideB_array = np.array([bjet2_sideB_Px, bjet2_sideB_Py, bjet2_sideB_Pz, bjet2_sideB_E]) 
     
     # get sideB lepton information 
-    ell2_sideB_p4 = ROOT.TLorentzVector() 
-    ell2_sideB_p4.SetPtEtaPhiM(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0) 
-    ell2_sideB_array = np.array([ell2_sideB_p4.Px(), ell2_sideB_p4.Py(), ell2_sideB_p4.Pz(), ell2_sideB_p4.E()])
-    
-    vis_sideB_array = np.array([ell2_sideB_array, ell2_sideB_array]) 
+    ell2_sideB_Px = extract_Px(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0) 
+    ell2_sideB_Py = extract_Py(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0)
+    ell2_sideB_Pz = extract_Pz(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0)
+    ell2_sideB_E = extract_E(t.ell2_PT, t.ell2_Eta, t.ell2_Phi, 0) 
+    ell2_sideB_array = np.array([ell2_sideB_Px, ell2_sideB_Py, ell2_sideB_Pz, ell2_sideB_E])  
+   
+    vis_sideB_array = np.array([bjet2_sideB_array, ell2_sideB_array]) 
 
     # get met information 
-    met_p4 = ROOT.TLorentzVector()
-    met_p4.SetPtEtaPhiM(t.EtMiss, 0, t.EtMiss_phi, 0)
-    met = np.array([met_p4.Px(), met_p4.Py(), 0, met_p4.E()]) 
-    
+    met_Px = extract_Px(t.EtMiss, 0, t.EtMiss_phi, 0) 
+    met_Py = extract_Py(t.EtMiss, 0, t.EtMiss_phi, 0) 
+    met_E = extract_E(t.EtMiss, 0, t.EtMiss_phi, 0) 
+    met = np.array([met_Px, met_Py, 0, met_E])
+   
     # define initial solution vector 
-    invis_sideA_p4_guess = ROOT.TLorentzVector() 
-    invis_sideA_p4_guess.SetPtEtaPhiM(t.truth_nu_ell1_PT, t.truth_nu_ell1_Eta, t.truth_nu_ell1_Phi, 0)
-    invis_sideA_array_guess = np.array([invis_sideA_p4_guess.Px(), invis_sideA_p4_guess.Py(), invis_sideA_p4_guess.Pz(),
-                                        invis_sideA_p4_guess.E()])
+    invis_sideA_array_guess = met/2 
     
     # define the function to minimise
     def objective(invis_sideA_array):
-        alpha_term_1 = mT_4vecCalc(vis_sideA_array[-1], invis_sideA_array) # mT(lA, pT_A)
-        alpha_term_2 = mT_4vecCalc(vis_sideB_array[-1], met-invis_sideA_array) # mT(TB, pT_B) 
+        alpha_term_1 = mT_arrayCalc(vis_sideA_array[-1], invis_sideA_array) # mT(lA, pT_A)
+        alpha_term_2 = mT_arrayCalc(vis_sideB_array[-1], met-invis_sideA_array) # mT(TB, pT_B) 
         alpha_term = max(alpha_term_1, alpha_term_2) 
         
-        beta_term_1 = mT_4vecCalc(vis_sideA_array[0] + vis_sideA_array[-1], invis_sideA_array) # mT(lATA, pT_A)
-        beta_term_2 = mT_4vecCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
+        beta_term_1 = mT_arrayCalc(vis_sideA_array[0] + vis_sideA_array[-1], invis_sideA_array) # mT(lATA, pT_A)
+        beta_term_2 = mT_arrayCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
         beta_term = max(beta_term_1, beta_term_2) 
     
         return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
 
-    sol_array = so.minimize(objective, x0 = invis_sideA_array_guess, method='SLSQP') 
+    sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
+                            options={'maxiter': 2000, 'xatol': 1e-15, 'fatol': 1e-15, 'adaptive': True})    
+    sol_2 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
+                            options={'maxiter': 2000, 'xatol': 1e-15, 'fatol': 1e-15, 'adaptive': False})  
+    sol_fun = min(sol_1.fun, sol_2.fun) 
+    
+    print('event', i, sol_fun - mt2_W) 
+    
+    h_alpha_1.Fill(sol_fun - mt2_W) 
+    h_mt2dc_sol.Fill(sol_fun)
+    
+    if sol_fun - mt2_W > 1:
+        notable_sol.append([i, sol_fun - mt2_W])
                          
-    print(mt2_W - sol_array.fun)
-    # fill histogram 
-    h_alpha_1_truth_input.Fill(mt2_W - sol_array.fun) 
-                         
+print(notable_sol) 
+
 # Draw the histograms and save them.
 c = ROOT.TCanvas()
                          
-h_alpha_1_truth_input.Draw("E") # put error bars 
-c.SaveAs("h_alpha_1_truth_input.pdf")
+h_alpha_1.Draw("E") # put error bars 
+c.SaveAs("h_alpha_1_met.pdf")
 
-h_alpha_1_truth_input.Write() 
+h_mt2dc_sol.Draw("E") # put error bars 
+c.SaveAs("h_mt2dc_sol_met.pdf")
+
+h_alpha_1.Write() 
+h_mt2dc_so.Write() 
 
 f_outputRoot.Close()
