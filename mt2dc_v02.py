@@ -11,46 +11,76 @@ import numpy as np
 import math 
 from scipy.optimize import minimize 
 
-def Et_scalarCalc(m, pt):
-    """Calculate the transverse energy of a particle, using scalar input variables."""
-    Et = math.sqrt(max(0, m**2+pt**2)) 
-    return Et
-
-def mT_4vecCalc(p4_vis_array, p4_invis_array):
-    """Calculate the tranverse mass of a parent particle, using array input variables. 
-    Inputs: p4_vis_array = [px, py, pz, E], p4_invis_array = [px, py, 0, E]. 
+# Define functions
+def mass_scalarCalc(px, py, pz, E): 
+    """Calculate the mass of a particular, using scalar input variables.
     """
-  
-    # Create TLorentz 4-vectors 
-    p4_vis = ROOT.TLorentzVector() 
-    p4_vis.SetPxPyPzE(p4_vis_array[0], p4_vis_array[1], p4_vis_array[2], p4_vis_array[3])
+    m_squared = E**2 - (px**2 + py**2 + pz**2)
+    
+    if m_squared > 0:
+        return np.sqrt(m_squared)
+    return 0 
+
+def ET_scalarCalc(m, pT):
+    """Calculate the transverse energy of a particle, using scalar input variables.
+    """
+    ET = math.sqrt(max(0, m**2+pT**2)) 
+    return ET
+
+def mT_arrayCalc(p4_vis_array, p4_invis_array):
+    """Calculate the transverse mass of a parent particle, using array input variables.
+    Note: p4_(in)vis_array = [px, py, pz, E].
+    """ 
+    # Extract mass information
+    m_vis = max(0, mass_scalarCalc(p4_vis_array[0], p4_vis_array[1], p4_vis_array[2], p4_vis_array[3]))
+    m_invis = max(0, mass_scalarCalc(p4_invis_array[0], p4_invis_array[1], p4_invis_array[2], p4_invis_array[3]))
+    
+    # Get transverse momentum vectors 
+    pT_vis_vec = np.array([p4_vis_array[0], p4_vis_array[1]])  
+    pT_invis_vec = np.array([p4_invis_array[0], p4_invis_array[1]])
+    
+    # Extract energy information 
+    ET_vis = ET_scalarCalc(m_invis, np.linalg.norm(pT_vis_vec)) 
+    ET_invis = ET_scalarCalc(m_invis, np.linalg.norm(pT_invis_vec)) 
    
-    p4_invis = ROOT.TLorentzVector() 
-    p4_invis.SetPxPyPzE(p4_invis_array[0], p4_invis_array[1], p4_invis_array[2], p4_invis_array[3])
+    mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(ET_vis*ET_invis - np.dot(pT_vis_vec, pT_invis_vec))))
+    return mT 
+
+# Define TLorentzVector module functions 
+def extract_Px(pT, eta, phi, mass): 
+    """Extract Px, from scalar input variables. 
+    """
+    Px = pT*np.cos(phi) 
+    return Px 
+
+def extract_Py(pT, eta, phi, mass):
+    """Extract Py, from scalar input variables.
+    """
+    Py = pT*np.sin(phi) 
+    return Py 
     
-    # Extract mass, energy and transverse momentum information 
-    m_vis = max(0, p4_vis.M()) 
-    m_invis = max(0, p4_invis.M()) 
+def extract_Pz(pT, eta, phi, mass):
+    """Extract Pz, from scalar input variables.
+    """ 
+    theta = 2*np.arctan(np.exp(-eta)) # polar angle 
+    Pz = pT/np.tan(theta)
+    return Pz 
     
-    Et_vis = Et_scalarCalc(m_vis, p4_vis.Pt()) 
-    Et_invis = Et_scalarCalc(m_invis, p4_invis.Pt()) 
-    
-    pt_vec_vis = p4_vis.Vect() 
-    pt_vec_vis.SetZ(0)
-    pt_vec_invis = p4_invis.Vect() 
-   #pt_vec_invis.SetZ(0) 
-    
-    mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(Et_vis*Et_invis - pt_vec_vis*pt_vec_invis)))
-    return mT  
+def extract_E(pT, eta, phi, mass):
+    """Extract E, from scalar input variables.
+    """
+    Pz = extract_Pz(pT, eta, phi, mass)
+    E = math.sqrt(mass**2 + (pT**2 + Pz**2))
+    return E 
        
 class mt2dc: 
     # initialise types 
     _TLV_array_temp = np.array([])
-    _vis_sideA_array = np.array([TLV_array_temp]) 
-    _vis_sideB_array = np.array([TLV_array_temp]) 
+    _vis_sideA_array = np.array([_TLV_array_temp]) 
+    _vis_sideB_array = np.array([_TLV_array_temp]) 
     _invis_sideA_array = np.array([]) 
     _invis_sideB_array = np.array([]) 
-    _met = np.array([TLV_array_temp]) 
+    _met = np.array([_TLV_array_temp]) 
     _alphaList = [] 
     _gamma_sideA_2vec = ROOT.TVector2() # (px, py) 
     _gamma_sideB_2vec = ROOT.TVector2() 
@@ -121,13 +151,13 @@ class mt2dc:
             
             return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
         
-        def run_alpha_term(self, invis_sideA_array_variable):
+        def get_alpha_term(self, invis_sideA_array_variable):
             alpha_term_1 = mT_4vecCalc(vis_sideA_array[-1], invis_sideA_array_variable) # mT(lA, pT_A)
             alpha_term_2 = mT_4vecCalc(vis_sideB_array[-1], met-invis_sideA_array_variable) # mT(TB, pT_B) 
             alpha_term = max(alpha_term_1, alpha_term_2)
             return alpha_term 
         
-        def run_beta_term(self, invis_sideA_array_variable):
+        def get_beta_term(self, invis_sideA_array_variable):
             beta_term_1 = mT_4vecCalc(vis_sideA_array[0] + vis_sideA_array[-1], invis_sideA_array_variable) # mT(lATA, pT_A)
             beta_term_2 = mT_4vecCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array_variable) # mT(TBbB, pt_B)
             beta_term = max(beta_term_1, beta_term_2) 

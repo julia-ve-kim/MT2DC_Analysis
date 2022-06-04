@@ -31,7 +31,7 @@
 ##############################################
 
 import ROOT
-import mt2dc as DC
+#import mt2dc_v02 as DC
 import math
 
 # With newer versions of root
@@ -60,7 +60,7 @@ m_t = 173.  # GeV - NEED TO LOOK UP MASS USED IN THE TTBAR GENERATOR !!!!!!!!!!!
 ####################################
                      
 h_ell1_pt = ROOT.TH1F("h_ell1_pt", "Pt of highest pt light lepton;Leading light lepton pt [GeV];Number of entries / 2 GeV", 100, 0, 200)
-h_ell1_E = ROOT.TH1F("h_ell1_E", "E of highest pt light lepton;Leading light lepton Energy    [GeV];Number of entries / 2.5 GeV", 100, 0, 250)
+h_ell1_E = ROOT.TH1F("h_ell1_E", "E of highest pt light lepton;Leading light lepton Energy [GeV];Number of entries / 2.5 GeV", 100, 0, 250)
 
 h_ell2_pt = ROOT.TH1F("h_ell2_pt", "Pt of lowest pt light lepton; Second light lepton pt [GeV]; Number of entries / 2GeV", 100, 0, 200)
 h_ell2_E = ROOT.TH1F("h_ell2_pt", "E of lowest pt light lepton; Second light lepton pt [GeV]; Number of entries / 2.5eV", 100, 0, 250)
@@ -213,9 +213,9 @@ for i in range(nentries):
     p4_met = ROOT.TLorentzVector()
     p4_met.SetPtEtaPhiM(pt,eta,phi,m)
 
-    mt_ell1 = DC.mT_4vecCalc(p4_ell1, p4_met)
-    h_mT_ell1.Fill( mt_ell1 )
-    h_mT_ell1__forMt2Overlay.Fill( mt_ell1 )
+   # mt_ell1 = DC.mT_4vecCalc(p4_ell1, p4_met)
+    #h_mT_ell1.Fill( mt_ell1 )
+   # h_mT_ell1__forMt2Overlay.Fill( mt_ell1 )
 
     # Read in mt2 variables
     mt2_W = t.mt2_W_ell1ell2
