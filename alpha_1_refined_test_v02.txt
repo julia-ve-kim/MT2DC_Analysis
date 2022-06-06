@@ -55,7 +55,7 @@ def mT_4vecCalc(p4_vis_array, p4_invis_array):
 
 # Create a TH1 histogram 
 # mT2(W) - mT2dc(alpha = 0)  
-h_alpha_1_v02 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2DC; Difference (GeV); Number of entries / 1 GeV", 100, -100, 100)
+h_alpha_1_v02 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2DC; Difference (GeV); Number of entries / 2 GeV", 100, -100, 100)
 h_sol_array = ROOT.TH1F("h_sol_array", "mT2dc(alpha = 1); mT2dc (GeV); Number of entries / 1 GeV", 100, 0, 100)
 notable_sol = [] 
     
