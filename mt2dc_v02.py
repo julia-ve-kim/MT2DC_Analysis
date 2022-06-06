@@ -11,7 +11,23 @@ import numpy as np
 import math 
 from scipy.optimize import minimize 
 
-# Define functions
+# test values
+# vis_sideA_array = np.array([[1, 2, 3, 4], [1, 2, 3, 4]]) 
+# vis_sideB_array = np.array([[1, 2, 3, 4], [1, 2, 3, 4]]) 
+# invis_sideA_array = np.array([1, 2, 3, 4])
+# invis_sideB_array = np.array([1, 2, 3, 4]) 
+# met = np.array([1, 2, 3, 4]) 
+# alphaList = np.array([1]) 
+# gamma_sideA_2vec = np.array([1, 2]) 
+# gamma_sideB_2vec = np.array([3, 4]) 
+# mass_inv_sideA = 1
+# mass_inv_sideB = 2 
+# invis_side_A_array_guess = np.array([1, 2, 3, 4]) 
+# mt2prime_list = np.array([1, 2])
+# mt2dc = 1 
+
+# FUNCTIONS 
+# Basic Variable Functions 
 def mass_scalarCalc(px, py, pz, E): 
     """Calculate the mass of a particular, using scalar input variables.
     """
@@ -46,7 +62,7 @@ def mT_arrayCalc(p4_vis_array, p4_invis_array):
     mT = math.sqrt(max(0, m_vis**2 + m_invis**2 + 2*(ET_vis*ET_invis - np.dot(pT_vis_vec, pT_invis_vec))))
     return mT 
 
-# Define TLorentzVector module functions 
+# TLorentz Module Functions 
 def extract_Px(pT, eta, phi, mass): 
     """Extract Px, from scalar input variables. 
     """
@@ -72,42 +88,29 @@ def extract_E(pT, eta, phi, mass):
     Pz = extract_Pz(pT, eta, phi, mass)
     E = math.sqrt(mass**2 + (pT**2 + Pz**2))
     return E 
-       
-class mt2dc: 
-    # initialise types 
-    _TLV_array_temp = np.array([])
-    _vis_sideA_array = np.array([_TLV_array_temp]) 
-    _vis_sideB_array = np.array([_TLV_array_temp]) 
-    _invis_sideA_array = np.array([]) 
-    _invis_sideB_array = np.array([]) 
-    _met = np.array([_TLV_array_temp]) 
-    _alphaList = [] 
-    _gamma_sideA_2vec = ROOT.TVector2() # (px, py) 
-    _gamma_sideB_2vec = ROOT.TVector2() 
-    _mass_inv_sideA = 0
-    _mass_inv_sideB = 0 
-    _invis_side_A_array_guess = np.array([]) 
+ 
+class mt2dc:
+    """This class presumes the minimisation function has already been run...? 
+    """
     _calcPerformed = False 
     
-    # resulting quantities 
-    _mt2prime_list = [] # filled with mt2' 
-    _mt2dc = 0 # final value acquired 
-    
-    def __init__(self, vis_sideA_array, vis_sideB_array, invis_sideA_array, invis_sideB_array, met, alphaList, gamma_sideA_2vec, 
-                 gamma_sideB_2vec, mass_inv_sideA, mass_inv_sideB, invis_side_A_array_guess, mt2prime_list, mt2dc): 
-        self._vis_sideA_array = vis_sideA_array
-        self_vis_sideB_array = vis_sideB_array 
-        self._invis_sideA_array = invis_sideA_array 
-        self._invis_sideB_array = invis_sideB_array 
-        self._met = met 
-        self._alphaList = alphaList 
-        self._gamma_sideA_2vec = gamma_sideA_2vec 
-        self._gamma_sideB_2vec = gamma_sideB_2vec 
-        self._mass_inv_sideA = mass_inv_sideA
-        self._mass_inv_sideB = mass_inv_sideB 
-        self._invis_side_A_array_guess = invis_side_A_array_guess 
-        self._mt2prime_list = mt2prime_list
-        self._mt2dc = mt2dc 
+    def __init__(self, _vis_sideA_array, _vis_sideB_array, _invis_sideA_array, _invis_sideB_array, _met, _alphaList,
+                 _gamma_sideA_2vec, _gamma_sideB_2vec, _mass_inv_sideA, _mass_inv_sideB, _invis_side_A_array_guess, 
+                 _mt2prime_list, _mt2dc_val): 
+        # the following enable you to "get" the quantities, by using the syntax a = mt2dc(...), a._quantity 
+        self._vis_sideA_array = _vis_sideA_array
+        self._vis_sideB_array = _vis_sideB_array 
+        self._invis_sideA_array = _invis_sideA_array 
+        self._invis_sideB_array = _invis_sideB_array 
+        self._met = _met 
+        self._alphaList = _alphaList 
+        self._gamma_sideA_2vec = _gamma_sideA_2vec 
+        self._gamma_sideB_2vec = _gamma_sideB_2vec 
+        self._mass_inv_sideA = _mass_inv_sideA
+        self._mass_inv_sideB = _mass_inv_sideB 
+        self._invis_side_A_array_guess = _invis_side_A_array_guess 
+        self._mt2prime_list = _mt2prime_list
+        self._mt2dc = _mt2dc_val
       
         if ((self._alphaList.size != self._vis_sideA_array.size) or  \
             (self._alphaList.size != self._vis_sideB_array.size)):
@@ -117,28 +120,7 @@ class mt2dc:
             print("self._vis_sideB_array.size = ", self._vis_sideB_array.size)
             pass
         
-        # function attributes 
-        def get_vis_sideA_array(self):
-            return self._vis_sideA_array 
-        
-        def get_vis_sideB_array(self):
-            return self._vis_sideB_array
-        
-        def get_alphaList(self):
-            return self._alphaList.tolist() 
-        
-        def get_met(self):
-            return self._met 
-
-        def get_mass_inv_sideA(self):
-            return self._mass_inv_sideA 
-        
-        def get_mass_inv_sideB(self):
-            return self._mass_inv_sideB 
-        
-        def get_invis_side_A_array_guess(self):
-            return self._invis_side_A_array_guess  
-        
+        # function attributes  
         def run_objective(self, invis_sideA_array_variable): 
             """This function will serve as the objective function, being equal to the inner expression of mt2dc."""
             alpha_term_1 = mT_4vecCalc(vis_sideA_array[-1], invis_sideA_array_variable) # mT(lA, pT_A)
@@ -153,7 +135,7 @@ class mt2dc:
         
         def get_alpha_term(self, invis_sideA_array_variable):
             alpha_term_1 = mT_4vecCalc(vis_sideA_array[-1], invis_sideA_array_variable) # mT(lA, pT_A)
-            alpha_term_2 = mT_4vecCalc(vis_sideB_array[-1], met-invis_sideA_array_variable) # mT(TB, pT_B) 
+            alpha_term_2 = mT_4vecCalc(vis_yousideB_array[-1], met-invis_sideA_array_variable) # mT(TB, pT_B) 
             alpha_term = max(alpha_term_1, alpha_term_2)
             return alpha_term 
         

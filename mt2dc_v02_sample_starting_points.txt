@@ -1,0 +1,13 @@
+_vis_sideA_array = np.array([[1, 2, 3, 4], [1, 2, 3, 4]]) 
+_vis_sideB_array = np.array([[1, 2, 3, 4], [1, 2, 3, 4]]) 
+_invis_sideA_array = np.array([1, 2, 3, 4])
+_invis_sideB_array = np.array([1, 2, 3, 4]) 
+_met = np.array([1, 2, 3, 4]) 
+_alphaList = np.array([1]) 
+_gamma_sideA_2vec = np.array([1, 2]) 
+_gamma_sideB_2vec = np.array([3, 4]) 
+_mass_inv_sideA = 1
+_mass_inv_sideB = 2 
+_invis_side_A_array_guess = np.array([1, 2, 3, 4]) 
+_mt2prime_list = np.array([1, 2])
+_mt2dc_val = 1 

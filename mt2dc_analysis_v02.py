@@ -7,76 +7,48 @@
 #    plots are not produced here but by mt2dc_makeFinalPlots.py.
 #    This code executes the mt2dc calculation, performed 
 #    by mt2dc.py.
-# 
-# 
-# 
-# Authors:  
-#    Ewan Hill    <ewan.hill@utoronto.ca>
-# 
-# 
-# Notes:
-#    * The input and output files must be set in the 
-#      code before it can be properly run.
-# 
-# Usage:
-#    Before the code can be run, you must set up root.
-#
-#    Example of execution:
-#       python mt2dc_analysis_v01.py
-#           or if you want to save the output to a log file:
-#       python mt2dc_analysis_v01.py >& out.log
-#   
-#   
-#   
 ##############################################
 
 import ROOT
-#import mt2dc_v02 as DC
+from mt2dc_v02_prime import * 
 import math
 
-# With newer versions of root
-# from ROOT import gROOT
-# gROOT.LoadMacro("AtlasStyle.C")
-
-####################################
+##############################################
 # Define the input and output root files
-####################################
+##############################################
 f_inputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_03_March_07_skim_mg5_ttbar_jet_merged_001-716_ntuple_2l2b_v01.root", "read")
-
 t = f_inputRoot.Get("variables")
 type(t)
-
 f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
 
-
-####################################
+##############################################
 # Define constants
-####################################
-m_W = 80.   # GeV - NEED TO LOOK UP MASS USED IN THE TTBAR GENERATOR !!!!!!!!!!!
-m_t = 173.  # GeV - NEED TO LOOK UP MASS USED IN THE TTBAR GENERATOR !!!!!!!!!!!
+##############################################
+m_W = 80.   # GeV 
+m_t = 173.  # GeV
 
-####################################
+##############################################
 # Define the plots to produce
-####################################
-                     
-h_ell1_pt = ROOT.TH1F("h_ell1_pt", "Pt of highest pt light lepton;Leading light lepton pt [GeV];Number of entries / 2 GeV", 100, 0, 200)
-h_ell1_E = ROOT.TH1F("h_ell1_E", "E of highest pt light lepton;Leading light lepton Energy [GeV];Number of entries / 2.5 GeV", 100, 0, 250)
+##############################################
+# Plots from input ROOT TFile Tree                       
+h_ell1_pt = ROOT.TH1F("h_ell1_pt", "Pt of highest pt light lepton; Leading light lepton pt [GeV]; Number of entries / 2 GeV", 100, 0, 200)
+h_ell1_E = ROOT.TH1F("h_ell1_E", "E of highest pt light lepton; Leading light lepton Energy [GeV]; Number of entries / 2.5 GeV", 100, 0, 250)
 
 h_ell2_pt = ROOT.TH1F("h_ell2_pt", "Pt of lowest pt light lepton; Second light lepton pt [GeV]; Number of entries / 2GeV", 100, 0, 200)
 h_ell2_E = ROOT.TH1F("h_ell2_pt", "E of lowest pt light lepton; Second light lepton pt [GeV]; Number of entries / 2.5eV", 100, 0, 250)
 
-h_bjet1_E = ROOT.TH1F("h_bjet1_E", "E of highest pt b-tagged jet; Leading b-tagged jet Energy    [GeV];Number of entries / 5 GeV", 100, 0, 500)
-h_bjet2_E = ROOT.TH1F("h_bjet_2_E", "E of lowest pt b-tagged jet; Leading b-tagged jet Energy [GeV]' Number of entries / 5 GeV", 100, 0, 500)
+h_bjet1_E = ROOT.TH1F("h_bjet1_E", "E of highest pt b-tagged jet; Leading b-tagged jet Energy [GeV];Number of entries / 5 GeV", 100, 0, 500)
+h_bjet2_E = ROOT.TH1F("h_bjet_2_E", "E of lowest pt b-tagged jet; Leading b-tagged jet Energy [GeV]; Number of entries / 5 GeV", 100, 0, 500)
 
-h_mT2_W = ROOT.TH1F("h_mT2_W", "mt2(ell1,ell2) = mt2(W);mt2(W)   [GeV];Number of entries / 1 GeV", 200, 0, 200)
+h_mT2_W = ROOT.TH1F("h_mT2_W", "mt2(ell1,ell2) = mt2(W); mt2(W) [GeV]; Number of entries / 1 GeV", 200, 0, 200)
 
-h_mT2_t_11_22 = ROOT.TH1F("h_mT2_t_11_22", "mt2|11,22(t) = mt2(b1 ell1,b2 ell2);mt2(t|11,22)   [GeV];Number of entries / 1 GeV", 300, 0, 300)
-h_mT2_t_12_21 = ROOT.TH1F("h_mT2_t_12_21", "mt2|12,21(t) = mt2(b1 ell2,b2 ell1);mt2(t|12,21)   [GeV];Number of entries / 1 GeV", 300, 0, 300)
-h_mT2_t_min   = ROOT.TH1F("h_mT2_t_min",   "min( mt2(t|11,22), mt2(t|12,21) );mt2(t)_min   [GeV];Number of entries / 1 GeV",     300, 0, 300)
+h_mT2_t_11_22 = ROOT.TH1F("h_mT2_t_11_22", "mt2|11,22(t) = mt2(b1 ell1,b2 ell2); mt2(t|11,22) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_mT2_t_12_21 = ROOT.TH1F("h_mT2_t_12_21", "mt2|12,21(t) = mt2(b1 ell2,b2 ell1); mt2(t|12,21) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_mT2_t_min   = ROOT.TH1F("h_mT2_t_min",   "min( mt2(t|11,22), mt2(t|12,21)); mt2(t)_min [GeV]; Number of entries / 1 GeV",     300, 0, 300)
 
-h_mT_ell1__forMt2Overlay = ROOT.TH1F("h_mT_ell1_forMt2Overlay",   "mt(ell1, EtMiss);mt(ell1)   [GeV];Number of entries / 1 GeV",     300, 0, 300)
-# h_mT_ell2 = ROOT.TH1F("h_mT_ell2",   "mt(ell2, EtMiss);mt(ell2)   [GeV];Number of entries / 1 GeV",     300, 0, 300)
-h_mT_ell1 = ROOT.TH1F("h_mT_ell1",   "mt(ell1, EtMiss);mt(ell1)   [GeV];Number of entries / 5 GeV",     200, 0, 1000)
+h_mT_ell1__forMt2Overlay = ROOT.TH1F("h_mT_ell1_forMt2Overlay", "mt(ell1, EtMiss); mt(ell1) [GeV]; Number of entries / 1 GeV",   300, 0, 300)
+
+h_mT_ell1 = ROOT.TH1F("h_mT_ell1", "mt(ell1, EtMiss);mt(ell1) [GeV]; Number of entries / 5 GeV", 200, 0, 1000)
 
 h_nu_ell1_pt = ROOT.TH1F("h_nu_ell1_pt", "True pt of neutrino ass't with l1; Energy [GeV]; Number of entries / 1GeV", 300, 0, 300)
 h_nu_ell1_E = ROOT.TH1F("h_nu_ell1_E", "True E of neutrino ass't with l1; Energy [GeV]; Number of entries / 1GeV", 300, 0, 300)
@@ -88,11 +60,13 @@ h_EtMiss = ROOT.TH1F("h_EtMiss", "Missing transverse E; Energy [GeV]; Number of 
 h_EtMiss_phi = ROOT.TH1F("h_EtMiss_phi", "Azimuthal direction of missing transverse E; Azimuthal angle [rad]; Number of entries / 0.02 rad", 400, -4, 4)  #? 
 
 h_eventNumber = ROOT.TH1F("h_event_num", "Event Number; Event number; Number of entries / 30E8", 10, 10**9, 40*10**9)
-h_ell1_isMuon = ROOT.TH1F("h_ell1_isMuon", "ell1 is Muon; Truth value; Number of entries", 2, 0, 2)
+h_truth_numNu = ROOT.TH1F("h_truth_numNu", "True number of ejected neutrinos; Number; Events / 1 u ", 10, 0, 10) 
 
-h_truth_numNu = ROOT.TH1F("h_truth_numNu", "True number of ejected neutrinos; Number; Events / 1 u ", 10, 0, 10) #? 
+# Plots of mt2dc Calculation   
+h_diff_alpha_1 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2dc; Difference [GeV]; Number of entries / 1 GeV", 100, -100, 100)
 
-# Make the below a list with different alpha values !
+
+# Make the below a list with different alpha values 
 # h_mT2dc
 h_muT2dc = ROOT.TH1F("h_muT2dc", "muT2DC(theta = 1.15 radians) = ( sin(1.15) mT2'(W) + cos(1.15) mT2'(t) ) / ( sin(1.15) m(W) + cos(1.15) m(t) );muT2DC   [unitless];Number of entries / 0.01", 300, 0, 3)
 # histogram for transverse mass variable 
@@ -116,10 +90,6 @@ nentries = t.GetEntries() # 60599
 # >>>>>>>>>>>>>>>> Main analysis
 ####################################
 
-
-# Note: /Users/ewanhill/Documents/postdoc_ATLAS_UofT/fastDetectorSimulation/Delphes-3.5.0/classes/DelphesClasses.cc
-# The mass is zero for electrons and muons in Delphes.  Not jets though.
-
 for i in range(nentries):
     # Print status update to user every 1000 events
     if (   ( i % 1000 == 0 )   ): # every 1000th event 
@@ -137,14 +107,9 @@ for i in range(nentries):
        continue
 
     # Fill 4-vector information for electron/muon 1 (highest pt light lepton)
-    pt  = t.ell1_PT # single entry 
-    eta = t.ell1_Eta # PSEUDORAPIDITY  (+ - infinty)
-    # angle of 0 -> point along beam axis (+ infinity)
-    # angle of π/2 -> point along tranverse plane (0)
-    # angle of π -> point along other direction of beam axis (- infinty)
-    # ideally, want detector performance balanced out 
-    # there is boost => change how big detector sizes are 
-    phi = t.ell1_Phi # AZIMUTHAL  (xy-plane)
+    pt  = t.ell1_PT
+    eta = t.ell1_Eta 
+    phi = t.ell1_Phi 
     m = 0
     p4_ell1 = ROOT.TLorentzVector() # 4-vec 
     p4_ell1.SetPtEtaPhiM(pt,eta,phi,m)
