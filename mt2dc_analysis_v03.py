@@ -72,7 +72,7 @@ nentries = t.GetEntries() # 60599
 # Main analysis - loop over all events
 ##############################################
 
-for i in range(nentries):
+for i in range(1000):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -127,9 +127,9 @@ for i in range(nentries):
     vis_sideB_array = np.array([bjet2_sideB_array, ell2_sideB_array]) 
     
     # get met information 
-    met_Px = DC.extract_Px(t.EtMiss, 0, t.EtMiss_Phi, 0) 
-    met_Py = DC.extract_Py(t.EtMiss, 0, t.EtMiss_Phi, 0) 
-    met_E = DC.extract_E(t.EtMiss, 0, t.EtMiss_Phi, 0) 
+    met_Px = DC.extract_Px(t.EtMiss, 0, t.EtMiss_phi, 0) 
+    met_Py = DC.extract_Py(t.EtMiss, 0, t.EtMiss_phi, 0) 
+    met_E = DC.extract_E(t.EtMiss, 0, t.EtMiss_phi, 0) 
     met = np.array([met_Px, met_Py, 0, met_E])
     
     mt_ell1 = DC.mT_arrayCalc(ell1_sideA_array, met)
@@ -137,7 +137,7 @@ for i in range(nentries):
     h_mT_ell1__forMt2Overlay.Fill(mt_ell1)
     
     h_EtMiss.Fill(t.EtMiss) 
-    h_EtMiss_phi.Fill(t.EtMiss_Phi) 
+    h_EtMiss_phi.Fill(t.EtMiss_phi) 
     
     # get tranverse mass information
     mt2_W = t.mt2_W_ell1ell2
@@ -198,6 +198,7 @@ for i in range(nentries):
     
     sol = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
                             options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
+    print('event', i, sol.fun - mt2_W) 
     
     h_mT2dc_diff_alpha_1.Fill(sol.fun - mt2_W) 
     h_mT2dc_alpha_1.Fill(sol.fun)
@@ -318,5 +319,3 @@ h_mT2dc_alpha_1.Write()
 h_mT2prime_W.Write() 
 
 f_outputRoot.Close()
-
-
