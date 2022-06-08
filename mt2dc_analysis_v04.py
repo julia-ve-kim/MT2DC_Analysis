@@ -184,9 +184,12 @@ for i in range(5000):
     
     # CALCULATION OF MT2DC:
     alphaList = [1] 
-    invis_sideA_array_guess = ell1_sideA_array 
+    invis_sideA_array_guess = ell1_sideA_array[:2]  
 
-    def objective(invis_sideA_array):
+    def objective(invis_sideA_2vec): # minimise over a 2-vector array, having components px and py 
+        invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
+                                     np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[0]**2)]) 
+        
         alpha_term_1 = DC.mT_arrayCalc(vis_sideA_array[-1], invis_sideA_array) # mT(lA, pT_A)
         alpha_term_2 = DC.mT_arrayCalc(vis_sideB_array[-1], met-invis_sideA_array) # mT(TB, pT_B) 
         alpha_term = max(alpha_term_1, alpha_term_2) 
@@ -202,6 +205,7 @@ for i in range(5000):
                             options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
         sol_fun = sol.fun 
         sol_x = sol.x 
+        
     elif calc_style == 'slow':
         sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
                             options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
@@ -218,7 +222,7 @@ for i in range(5000):
     h_mT2dc_diff_alpha_1.Fill(sol_fun - mt2_W) 
     h_mT2dc_alpha_1.Fill(sol_fun)
     
-    mT2prime_W = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_x)
+    mT2prime_W = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, [sol_x[0], sol_x[1], 0, np.sqrt(sol_x[0]**2 + sol_x[1]**2)]) 
     h_mT2prime_W.Fill(mT2prime_W)  
     
 ##############################################
@@ -290,13 +294,13 @@ h_truth_numNu.Draw("E")
 c.SaveAs("h_truth_numNu.pdf")
 
 h_mT2dc_diff_alpha_1.Draw("E") 
-c.SaveAs("h_mT2dc_diff_alpha_1.pdf")
+c.SaveAs("h_mT2dc_diff_alpha_1_2VEC_SLOW.pdf")
 
 h_mT2dc_alpha_1.Draw("E")
-c.SaveAs("h_mT2dc_alpha_1.pdf") 
+c.SaveAs("h_mT2dc_alpha_1_2VEC_SLOW.pdf") 
     
 h_mT2prime_W.Draw("E") 
-c.SaveAs("h_mt2prime_W.pdf") 
+c.SaveAs("h_mt2prime_W_2VEC_SLOW.pdf") 
     
 # save to ROOT output files
 h_ell1_pt.Write()

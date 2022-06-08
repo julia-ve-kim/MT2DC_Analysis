@@ -105,7 +105,7 @@ h_mt2dc_sol_7 = ROOT.TH1F("h_m2tdc_sol_7", "mT2dc(alpha = 1); mT2dc [GeV]; Numbe
 # Get the number entries in the tree 
 nentries = t.GetEntries() # 60599  
 
-for i in range(10000):
+for i in range(30):
     if (i%1000==0): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -189,7 +189,7 @@ for i in range(10000):
         return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
 
     sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
-                            options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
+                            options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True})
    
     sol_2 = so.minimize(objective, x0 = invis_sideA_array_guess_2, method='Nelder-Mead', 
                             options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True})  
@@ -210,6 +210,7 @@ for i in range(10000):
                             options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True})  
    
     print('1', 'event', i, sol_1.fun - mt2_W) 
+    print('1', 'event', i, (sol_1.x[0]**2 + sol_1.x[1]**2)**0.5, sol_1.x[-1]) 
     print('2', 'event', i, sol_2.fun - mt2_W) 
     print('3', 'event', i, sol_3.fun - mt2_W) 
     print('4', 'event', i, sol_4.fun - mt2_W) 

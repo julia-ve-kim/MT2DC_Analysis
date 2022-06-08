@@ -145,8 +145,8 @@ for i in range(5000):
     met = np.array([met_Px, met_Py, 0, met_E])
    
     # define initial solution vector guesses 
-    invis_sideA_array_guess = met[:2]/2 
-    invis_sideA_array_guess_2 = bjet1_sideA_array[:2] 
+    invis_sideA_array_guess = [met[0], met[1], 0, 0]/2 
+    invis_sideA_array_guess_2 = [bjet1_sideA_array[0], bjet1_sideA_array[1], 0, 0] 
     invis_sideA_array_guess_3 = ell1_sideA_array[:2] 
     invis_sideA_array_guess_4 = bjet2_sideB_array[:2] 
     invis_sideA_array_guess_5 = ell2_sideB_array[:2] 
@@ -158,7 +158,7 @@ for i in range(5000):
                                 invis_sideA_array_guess_7]
 
     # define the function to minimise; minimise over two variables 
-    def objective(invis_sideA_2vec): # minimise over a 2-vector array, having components px and py 
+    def objective(invis_sideA_2vec, dim_variable_1, dim_variable_2): # minimise over a 2-vector array, having components px and py 
         invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
                                      np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[0]**2)]) 
         

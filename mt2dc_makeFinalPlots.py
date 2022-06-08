@@ -11,7 +11,7 @@
 
 import ROOT
 
-#  Turn off the root stats box
+# Turn off the root stats box
 ##################################################
 ROOT.gROOT.ForceStyle()
 ROOT.gStyle.SetOptStat(0)
@@ -23,17 +23,9 @@ ROOT.TH1.SetDefaultSumw2()
 inFileName = "/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root" 
 outDir = "/Users/juliakim/Documents/styledPlotsOutputs/"  
 
-
 inputFile = ROOT.TFile(inFileName, "read")
 
-
-
 ##################################################
-# Colour blind friendly set of colours from Belle II.  See
-#     https://jfly.uni-koeln.de/color/
-#     https://confluence.desy.de/download/attachments/134208224/colourBlindFriendlyExample.C?version=1&modificationDate=1567476642680&api=v2
-#     https://confluence.desy.de/display/BI/Colo%28u%29r+Blind+Friendly+Plots+and+Displays
-
 cbf_Black         = ROOT.TColor.GetFreeColorIndex()
 colour1           = ROOT.TColor(cbf_Black,            0.00, 0.00, 0.00, "cbf_Black")
 cbf_Orange        = ROOT.TColor.GetFreeColorIndex()
@@ -50,9 +42,6 @@ cbf_Vermilion     = ROOT.TColor.GetFreeColorIndex()
 colour7           =  ROOT.TColor(cbf_Vermilion,       0.80, 0.40, 0.00, "cbf_Vermilion")
 cbf_ReddishPurple = ROOT.TColor.GetFreeColorIndex()
 colour8           =  ROOT.TColor(cbf_ReddishPurple,   0.80, 0.60, 0.70, "cbf_ReddishPurple")
-
-
-
 ##################################################
 
 # c1 = new TCanvas("c1", "", 0, 0, 1000, 700)
@@ -60,21 +49,19 @@ c1 = ROOT.TCanvas("c1", "")
 ROOT.gROOT.ForceStyle() 
 c1.SetLogy() # use 60 to set logarithmic y-axis scale 
 
-
 ##################################################
 ##################################################
 
 plotCounter = 0
 
-
 plotCounter += 1
 print("plotCounter = ", plotCounter)
 
 histLabel__mtW_mt2 = "mt2(W)" 
-histLabel__mtW_mt2prime = "mt2'(W | theta = ---)" 
-inputHist__mtW_mt2 = "h_mT2_W" 
-inputHist__mtW_mt2prime = "h_mT2prime_W" 
-xAxisDescription__mtW = "Transverse mass of W estimator   [GeV]" 
+histLabel__mtW_mt2prime = "mt2'(W | alpha = 1)" 
+inputHist__mtW_mt2 = "h_mT2_W"  
+inputHist__mtW_mt2prime = "h_mT2prime_W" # h_mT2dc_alpha_1 (equivalent to) 
+xAxisDescription__mtW = "Transverse mass of W estimator [GeV]" 
 yAxisDescription__mtW = "Number of events / 1 GeV" 
 outFile__mtW = "mtW_overlay" 
 title__mtW = "Estimators of W boson transverse mass"
@@ -101,10 +88,8 @@ underflow_v2 = h_v2.GetBinContent( 0 )
 overflow_v1 = h_v1.GetBinContent( h_v1.GetXaxis().GetNbins() + 1 )
 overflow_v2 = h_v2.GetBinContent( h_v2.GetXaxis().GetNbins() + 1 )
 
-
 maxBinValue = 1.25 * max(maxBinYvalue_h_v1, maxBinYvalue_h_v2)   # For histograms without overflow bins
 # maxBinValue = 1.25 * max(maxBinYvalue_h_v1, maxBinYvalue_h_v2, underflow_v1, underflow_v2, overflow_v1, overflow_v2) # for histograms with overflow bins
-
 
 # Use this as part of shifting the y axis title position and not having it overlap the rest of the plot
 c1.SetLeftMargin(0.1)
@@ -114,7 +99,6 @@ c1.SetTicks(1, 1)   # ticks on top part of ratio plot
 
 # Use this for shifting the y axis title position
 h_v1.GetYaxis().SetTitleOffset(1.5)
-
 
 # Make a ratio plot
 rp = ROOT.TRatioPlot(h_v1, h_v2)   # ratio of histograms in the bottom panel
@@ -130,7 +114,6 @@ rp.GetLowerRefYaxis().SetTitle("mt2(W) / mt2'(W)")
 # rp.GetUpperRefXaxis().SetRange(1, rp.GetXaxis().GetNbins() + 1);  # include overflow bin
 # rp.GetLowerRefXaxis().SetRange(1, rp.GetXaxis().GetNbins() + 1);  # include overflow bin - right range but does not put the ratio point for overflow bin
 # rp.GetUpperRefYaxis().SetRangeUser(0,maxBinValue)   # Turn off for log-y
-
 
 # Format the overlayed histograms in the top panel
 rp.GetUpperPad().cd()
@@ -150,9 +133,7 @@ h_v2.SetMarkerSize(1.0)
 # h_v1.GetXaxis().SetRange(1, rp.GetXaxis().GetNbins() + 1);  # include overflow bin
 # h_v2.GetXaxis().SetRange(1, rp.GetXaxis().GetNbins() + 1);  # include overflow bin
 
-
 rp.GetUpperPad().Update()
-
 
 # Plot title - implemented using TText
 t = ROOT.TText(.18,.92,title__mtW)
@@ -185,8 +166,6 @@ c1.SaveAs(outDir + outFile__mtW + ".root")
 # rp.~TRatioPlot()
 
 inputFile.Close()
-
-
 
 print("Finished")
 
