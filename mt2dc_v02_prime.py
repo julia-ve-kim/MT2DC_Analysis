@@ -75,8 +75,19 @@ def extract_E(pT, eta, phi, mass):
     return E 
 
 # Optimisation Functions 
-def get_alpha_term(vis_sideA_array, vis_sideB_array, met, invis_sideA_array_variable):
-    alpha_term_1 = mT_arrayCalc(vis_sideA_array[-1], invis_sideA_array_variable) # mT(lA, pT_A)
-    alpha_term_2 = mT_arrayCalc(vis_sideB_array[-1], met-invis_sideA_array_variable) # mT(TB, pT_B) 
+def get_alpha_term(vis_sideA_array, vis_sideB_array, met, invis_sideA_2vec):
+    invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
+                                  np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2)]) 
+    alpha_term_1 = mT_arrayCalc(vis_sideA_array[-1], invis_sideA_array) # mT(lA, pT_A)
+    alpha_term_2 = mT_arrayCalc(vis_sideB_array[-1], met-invis_sideA_array) # mT(TB, pT_B) 
     alpha_term = max(alpha_term_1, alpha_term_2)
     return alpha_term 
+
+def get_beta_term(vis_sideA_array, vis_sideB_array, met, invis_sideA_2vec):
+    invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
+                                  np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2)]) 
+    beta_term_1 = mT_arrayCalc(vis_sideA_array[0] + vis_sideA_array[-1], invis_sideA_array) # mT(lATA, pT_A)
+    beta_term_2 = mT_arrayCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
+    beta_term = max(beta_term_1, beta_term_2) 
+    return beta_term 
+            

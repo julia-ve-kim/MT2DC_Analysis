@@ -15,12 +15,10 @@ import scipy.optimize as so
 f_inputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_03_March_07_skim_mg5_ttbar_jet_merged_001-716_ntuple_2l2b_v01.root", "read")
 t = f_inputRoot.Get("variables")
 type(t)
-f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
 
 # Define constants 
-alphaList = [1] 
+alphaList = [0] 
 notable_sol = [] 
-notable_sol_2 = [] 
 
 # Define functions
 def mass_scalarCalc(px, py, pz, E): 
@@ -86,14 +84,16 @@ def extract_E(pT, eta, phi, mass):
     
 # Create TH1 histogram 
 # mT2dc(alpha = 1) - mT2(W)   
-h_alpha_1 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 1) - mt2dc; Difference [GeV]; Number of entries / 1 GeV", 100, -100, 100)
+h_alpha_1 = ROOT.TH1F("h_alpha_1", "mT2dc(alpha = 0) - mt2(t); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
 
-h_mt2dc_sol_1 = ROOT.TH1F("h_m2tdc_sol_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mt2dc_sol = ROOT.TH1F("h_m2tdc_sol", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+
+h_mt2dc_mt_prime = ROOT.TH1F("h_mt2dc_mt_prime", "mT2_t_prime(alpha = 0); mT2dc [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 
 # Get the number entries in the tree 
 nentries = t.GetEntries() # 60599  
 
-for i in range(5000):
+for i in range(1000):
     if (i%1000==0): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -103,9 +103,12 @@ for i in range(5000):
     if nb <= 0:
        continue
     
-    # retrive information from tree 
-    # get the mt2_W information from every event 
-    mt2_W = t.mt2_W_ell1ell2 
+    print('event', i)
+        
+    # get the mt2_t information from every event 
+    mt2_t_11_22 = t.mt2_t_bjet1ell1_bjet2ell2 # type 1 
+    mt2_t_12_21 = t.mt2_t_bjet1ell2_bjet2ell1 # type 2
+    mt2_t_min = min(mt2_t_11_22, mt2_t_12_21) 
     
     # get sideA bjet information 
     bjet1_sideA_Px = extract_Px(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass) 
@@ -145,21 +148,11 @@ for i in range(5000):
     met_E = extract_E(t.EtMiss, 0, t.EtMiss_phi, 0) 
     met = np.array([met_Px, met_Py, 0, met_E])
    
-    # define initial solution vector 
-    invis_sideA_array_guess = met/2 
-    invis_sideA_array_guess_2 = bjet1_sideA_array
-    invis_sideA_array_guess_3 = ell1_sideA_array
-    invis_sideA_array_guess_4 = bjet2_sideB_array
-    invis_sideA_array_guess_5 = ell2_sideB_array
-    invis_sideA_array_guess_6 = 1.01*met
-    invis_sideA_array_guess_7 = 0.01*met 
-    
-    invis_sideA_array_guesses = [invis_sideA_array_guess, invis_sideA_array_guess_2, invis_sideA_array_guess_3, 
-                                invis_sideA_array_guess_4, invis_sideA_array_guess_5, invis_sideA_array_guess_6, 
-                                invis_sideA_array_guess_7]
-    
     # define the function to minimise; minimise over two variables 
-    def objective(invis_sideA_array):
+    def objective(invis_sideA_2vec): 
+        invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
+                                     np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2)]) 
+        
         alpha_term_1 = mT_arrayCalc(vis_sideA_array[-1], invis_sideA_array) # mT(lA, pT_A)
         alpha_term_2 = mT_arrayCalc(vis_sideB_array[-1], met-invis_sideA_array) # mT(TB, pT_B) 
         alpha_term = max(alpha_term_1, alpha_term_2) 
@@ -169,47 +162,58 @@ for i in range(5000):
         beta_term = max(beta_term_1, beta_term_2) 
     
         return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
-
+    
     # try different inputs to establish which produces the smallest value
-    guess = objective(invis_sideA_array_guess)
-    guess_2 = objective(invis_sideA_array_guess_2) 
-    guess_3 = objective(invis_sideA_array_guess_3) 
-    guess_4 = objective(invis_sideA_array_guess_4)
-    guess_5 = objective(invis_sideA_array_guess_5) 
-    guess_6 = objective(invis_sideA_array_guess_6)
-    guess_7 = objective(invis_sideA_array_guess_7)
+    invis_sideA_array_guess_1 = met[:2]/2 
+    invis_sideA_array_guess_2 = bjet1_sideA_array[:2] 
+    invis_sideA_array_guess_3 = ell1_sideA_array[:2]
+    invis_sideA_array_guess_4 = bjet2_sideB_array[:2] 
+    invis_sideA_array_guess_5 = ell2_sideB_array[:2] 
+    invis_sideA_array_guess_6 = 1.01*met[:2] 
+    invis_sideA_array_guess_7 = 0.01*met[:2] 
     
-    guesses = [guess, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7] 
-    #print('guesses', [guess_1, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7]) 
-    #print('argmin', np.argmin(guesses), guesses[np.argmin(guesses)], invis_sideA_array_guesses[np.argmin(guesses)]) 
+    sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess_1, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+    sol_2 = so.minimize(objective, x0 = invis_sideA_array_guess_2, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+    sol_3 = so.minimize(objective, x0 = invis_sideA_array_guess_3, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})     
+    sol_4 = so.minimize(objective, x0 = invis_sideA_array_guess_4, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+    sol_5 = so.minimize(objective, x0 = invis_sideA_array_guess_5, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})
+    sol_6 = so.minimize(objective, x0 = invis_sideA_array_guess_6, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})  
+    sol_7 = so.minimize(objective, x0 = invis_sideA_array_guess_7, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
     
-    bounds = [(None, None), (None, None), (0, 0), (0, None)]
-    
-    def constraint_1(invis_sideA_array):
-        return invis_sideA_array[0]**2 + invis_sideA_array[1]**2 - invis_sideA_array[-1]**2 
-    
-    cons = [{'type': 'eq', 'fun': constraint_1}]
-    
-    sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', bounds = bounds, constraints = cons, options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
-   
-    print('event', i, sol.fun - mt2_W) 
-    print(sol.x)
-    print(sol.x[0]**2 + sol.x[1]**2, sol.x[-1]**2)
-    
-    h_alpha_1.Fill(sol.fun - mt2_W) 
-    h_mt2dc_sol_1.Fill(sol.fun)
-    
+    sol_fun_array = [sol_1.fun, sol_2.fun, sol_3.fun, sol_4.fun, sol_5.fun, sol_6.fun, sol_7.fun] 
+    sol_fun = min(sol_fun_array) 
+    sol_x_array = [sol_1.x, sol_2.x, sol_3.x, sol_4.x, sol_5.x, sol_6.x, sol_7.x]
+    sol_x = sol_x_array[np.argmin(sol_fun_array)] 
 
+    def get_beta_term(sol_x):
+        invis_sideA_array = np.array([sol_x[0], sol_x[1], 0, np.sqrt(sol_x[0]**2 + sol_x[1]**2)]) 
+        beta_term_1 = mT_arrayCalc(vis_sideA_array[0] + vis_sideA_array[-1], invis_sideA_array) # mT(lATA, pT_A)
+        beta_term_2 = mT_arrayCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
+        beta_term = max(beta_term_1, beta_term_2) 
+        return beta_term 
+    
+    h_mt2dc_mt_prime.Fill(get_beta_term(sol_x))  
+    h_alpha_1.Fill(sol_fun - mt2_t_11_22)  
+    h_mt2dc_sol.Fill(sol_fun) 
+    
+    
+    
+    
 # Draw the histograms and save them.
 c = ROOT.TCanvas()
                          
 h_alpha_1.Draw("E") # put error bars 
-c.SaveAs("h_alpha_1_met_4VEC_MIN_ALL_SUB.pdf")
+c.SaveAs("h_alpha_0_SLSQP_v02.pdf")
 
-h_mt2dc_sol_1.Draw("E") # put error bars 
-c.SaveAs("h_mt2dc_sol_met_4VEC_MIN_ALL_SUB.pdf")
+h_mt2dc_sol.Draw("E") # put error bars 
+c.SaveAs("h_mt2dc_alpha_0_sol_SLSQP_v02.pdf")
 
-h_alpha_1.Write() 
-h_mt2dc_sol_1.Write() 
-
-f_outputRoot.Close()
+h_mt2dc_mt_prime.Draw("E") # put error bars 
+c.SaveAs("mt2dc_mt_prime_SLSQP_v02.pdf")

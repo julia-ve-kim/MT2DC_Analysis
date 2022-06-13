@@ -26,7 +26,8 @@ f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_a
 ##############################################
 # Define the plots to produce
 ##############################################
-# Plots from input ROOT TFile Tree                       
+# Plots from input ROOT TFile Tree                 
+
 h_ell1_pt = ROOT.TH1F("h_ell1_pt", "Pt of highest pt light lepton; Leading light lepton pt [GeV]; Number of entries / 2 GeV", 100, 0, 200)
 h_ell1_E = ROOT.TH1F("h_ell1_E", "E of highest pt light lepton; Leading light lepton Energy [GeV]; Number of entries / 2.5 GeV", 100, 0, 250)
 
@@ -56,10 +57,17 @@ h_eventNumber = ROOT.TH1F("h_event_num", "Event Number; Event number; Number of 
 h_truth_numNu = ROOT.TH1F("h_truth_numNu", "True number of ejected neutrinos; Number; Events / 1 u ", 10, 0, 10) 
 
 # Plots of mt2dc calculation   
-h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mt2dc; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
-h_mT2dc_alpha_1 = ROOT.TH1F("h_m2tdc_sol_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
-
+# alpha = 1
+h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
+h_mT2dc_alpha_1 = ROOT.TH1F("h_mT2dc_alpha_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
 h_mT2prime_W = ROOT.TH1F("h_mT2prime_W", "mt2'(W); mt2'(W) [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(W); mt2'(t) [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+
+# alpha = 0 
+h_mT2dc_diff_alpha_0  = ROOT.TH1F("h_mT2dc_diff_alpha_0", "mT2dc(alpha = 0) - mt2_t_bjet1ell1_bjet2ell2; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
+h_mT2dc_alpha_0 = ROOT.TH1F("h_mT2dc_alpha_0", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_mT2prime_W_alpha_0 = ROOT.TH1F("h_mT2prime_W_alpha_0", "mt2'(W); mt2'(W) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_mT2prime_t = ROOT.TH1F("h_mT2prime_t", "mt2'(t); mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 
 ##############################################
 # Define constants
@@ -67,13 +75,14 @@ h_mT2prime_W = ROOT.TH1F("h_mT2prime_W", "mt2'(W); mt2'(W) [GeV]; Number of entr
 m_W = 80.   # GeV 
 m_t = 173.  # GeV
 nentries = t.GetEntries() # 60599
-calc_style = input("enter 'fast' or 'slow':")
+alphaListindex = input('Choose 0 (alpha = 0) or 1 (alpha = 1):') 
+calcStyle = input('Choose fast or slow:') 
+what_index = [] 
 
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-
-for i in range(5000):
+for i in range(1000):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -83,7 +92,8 @@ for i in range(5000):
     if nb <= 0:
        # no data
        continue
-        
+    print('event', i) 
+    
     # REQUIRED IN MINIMISATION: Retrive information from tree & successively fill histograms. 
     # get sideA bjet information (suppose sideA = highest pt jet originating from a b-quark)
     bjet1_sideA_Px = DC.extract_Px(t.bjet1_PT, t.bjet1_Eta, t.bjet1_Phi, t.bjet1_Mass) 
@@ -183,9 +193,30 @@ for i in range(5000):
     h_eventNumber.Fill(event_num)
     
     # CALCULATION OF MT2DC:
-    alphaList = [1] 
-    invis_sideA_array_guess = ell1_sideA_array[:2]  
-
+    alphaList = [0, 1] 
+    index = int(alphaListindex) 
+    invis_sideA_array_guess = met[:2]/2 
+    invis_sideA_array_guess_2 = bjet1_sideA_array[:2] 
+    invis_sideA_array_guess_3 = ell1_sideA_array[:2] 
+    invis_sideA_array_guess_4 = bjet2_sideB_array[:2] 
+    invis_sideA_array_guess_5 = ell2_sideB_array[:2] 
+    invis_sideA_array_guess_6 = 1.01*met[:2] 
+    invis_sideA_array_guess_7 = 0.01*met[:2] 
+    invis_sideA_array_guess_8 = 2*met[:2] 
+    invis_sideA_array_guess_9 = ell1_sideA_array[:2] + bjet1_sideA_array[:2] 
+    invis_sideA_array_guess_10 = ell2_sideB_array[:2] + bjet2_sideB_array[:2] 
+    invis_sideA_array_guess_11 = ell1_sideA_array[:2] + bjet2_sideB_array[:2] 
+    invis_sideA_array_guess_12 = ell2_sideB_array[:2] + bjet1_sideA_array[:2] 
+    invis_sideA_array_guess_13 = met[:2] + ell1_sideA_array[:2]
+    invis_sideA_array_guess_14 = met[:2] + ell2_sideB_array[:2]   
+    invis_sideA_array_guess_15 = met[:2] + bjet1_sideA_array[:2]
+    invis_sideA_array_guess_16 = met[:2] + bjet2_sideB_array[:2]   
+    invis_sideA_array_guess_17 = -met[:2] 
+    invis_sideA_array_guess_18 = met[:2] - ell1_sideA_array[:2]
+    invis_sideA_array_guess_19 = met[:2] - ell2_sideB_array[:2]
+    invis_sideA_array_guess_20 = met[:2] - bjet1_sideA_array[:2]  
+    invis_sideA_array_guess_21 = met[:2] - bjet2_sideB_array[:2]  
+    
     def objective(invis_sideA_2vec): # minimise over a 2-vector array, having components px and py 
         invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
                                      np.sqrt(invis_sideA_2vec[0]**2 + invis_sideA_2vec[0]**2)]) 
@@ -198,33 +229,92 @@ for i in range(5000):
         beta_term_2 = DC.mT_arrayCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
         beta_term = max(beta_term_1, beta_term_2) 
     
-        return alphaList[0]*alpha_term + (1-alphaList[0])*beta_term 
+        return alphaList[index]*alpha_term + (1-alphaList[index])*beta_term 
     
-    if calc_style == 'fast': 
-        sol = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
-                            options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
-        sol_fun = sol.fun 
-        sol_x = sol.x 
+    if calcStyle == 'fast': 
+        invis_sideA_array_guesses = [invis_sideA_array_guess, invis_sideA_array_guess_2, invis_sideA_array_guess_3, 
+                                     invis_sideA_array_guess_4, invis_sideA_array_guess_5, invis_sideA_array_guess_6, 
+                                     invis_sideA_array_guess_7, invis_sideA_array_guess_8, invis_sideA_array_guess_9, 
+                                     invis_sideA_array_guess_10, invis_sideA_array_guess_11, invis_sideA_array_guess_12,
+                                     invis_sideA_array_guess_13, invis_sideA_array_guess_14, invis_sideA_array_guess_15,
+                                     invis_sideA_array_guess_16, invis_sideA_array_guess_17, invis_sideA_array_guess_18, 
+                                    invis_sideA_array_guess_19, invis_sideA_array_guess_20, invis_sideA_array_guess_21]
+        guess = objective(invis_sideA_array_guess)
+        guess_2 = objective(invis_sideA_array_guess_2) 
+        guess_3 = objective(invis_sideA_array_guess_3) 
+        guess_4 = objective(invis_sideA_array_guess_4)
+        guess_5 = objective(invis_sideA_array_guess_5) 
+        guess_6 = objective(invis_sideA_array_guess_6)
+        guess_7 = objective(invis_sideA_array_guess_7)
+        guess_8 = objective(invis_sideA_array_guess_8)
+        guess_9 = objective(invis_sideA_array_guess_9)        
+        guess_10 = objective(invis_sideA_array_guess_10)
+        guess_11 = objective(invis_sideA_array_guess_11)        
+        guess_12 = objective(invis_sideA_array_guess_12)           
+        guess_13 = objective(invis_sideA_array_guess_13)  
+        guess_14 = objective(invis_sideA_array_guess_14)         
+        guess_15 = objective(invis_sideA_array_guess_15)  
+        guess_16 = objective(invis_sideA_array_guess_16)          
+        guess_17 = objective(invis_sideA_array_guess_17)   
+        guess_18 = objective(invis_sideA_array_guess_18)   
+        guess_19 = objective(invis_sideA_array_guess_19)   
+        guess_20 = objective(invis_sideA_array_guess_20)   
+        guess_21 = objective(invis_sideA_array_guess_21)
         
-    elif calc_style == 'slow':
-        sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
-                            options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True, 'disp': True}) 
-        sol_2 = so.minimize(objective, x0 = invis_sideA_array_guess, method='Nelder-Mead', 
-                            options={'maxiter': 2000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': False, 'disp': True}) 
-        sol_fun = min(sol_1.fun, sol_2.fun) 
-        if sol_1.fun <= sol_2.fun: 
-            sol_x = sol_1.x
-        else:
-            sol_x = sol_2.x 
+        guesses = [guess, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7, guess_8, guess_9, guess_10, guess_11,
+                  guess_12, guess_13, guess_14, guess_15, guess_16, guess_17, guess_18, guess_19, guess_20, guess_21] 
         
-    print('event', i, sol_fun - mt2_W) 
+        sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
+                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+        
+        print('np.argmin(guesses)', np.argmin(guesses))
+        what_index.append([np.argmin(guesses)]) 
+        
+        if index == 0:
+            h_mT2dc_diff_alpha_0.Fill(sol.fun - mt2_t_11_22) 
+            h_mT2dc_alpha_0.Fill(sol.fun) 
+            h_mT2prime_W_alpha_0.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x)) 
+            h_mT2prime_t.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            
+        elif index == 1:
+            h_mT2dc_diff_alpha_1.Fill(sol.fun - mt2_W)  
+            h_mT2dc_alpha_1.Fill(sol.fun) 
+            h_mT2prime_W.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            h_mT2prime_t_alpha_1.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
     
-    h_mT2dc_diff_alpha_1.Fill(sol_fun - mt2_W) 
-    h_mT2dc_alpha_1.Fill(sol_fun)
-    
-    mT2prime_W = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, [sol_x[0], sol_x[1], 0, np.sqrt(sol_x[0]**2 + sol_x[1]**2)]) 
-    h_mT2prime_W.Fill(mT2prime_W)  
-    
+    elif calcStyle == 'slow':
+        sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess_1, method='SLSQP', 
+                            options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+        sol_2 = so.minimize(objective, x0 = invis_sideA_array_guess_2, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+        sol_3 = so.minimize(objective, x0 = invis_sideA_array_guess_3, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})     
+        sol_4 = so.minimize(objective, x0 = invis_sideA_array_guess_4, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+        sol_5 = so.minimize(objective, x0 = invis_sideA_array_guess_5, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})
+        sol_6 = so.minimize(objective, x0 = invis_sideA_array_guess_6, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})  
+        sol_7 = so.minimize(objective, x0 = invis_sideA_array_guess_7, method='SLSQP', 
+                        options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+        
+        sol_fun_array = [sol_1.fun, sol_2.fun, sol_3.fun, sol_4.fun, sol_5.fun, sol_6.fun, sol_7.fun] 
+        sol_fun = min(sol_fun_array) 
+        sol_x_array = [sol_1.x, sol_2.x, sol_3.x, sol_4.x, sol_5.x, sol_6.x, sol_7.x]
+        sol_x = sol_x_array[np.argmin(sol_fun_array)] 
+        
+        if index == 0:
+            h_mT2dc_diff_alpha_0.Fill(sol_fun - mt2_t_11_22) 
+            h_mT2dc_alpha_0.Fill(sol_fun) 
+            h_mT2prime_t.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
+        elif index == 1:
+            h_mT2dc_diff_alpha_1.Fill(sol_fun - mt2_W) 
+            h_mT2dc_alpha_1.Fill(sol_fun) 
+            h_mT2prime_W.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
+            
+print(np.mean(what_index), np.std(what_index, ddof=1)) 
+print(what_index) 
+            
 ##############################################
 # Draw all histograms and save them.
 ##############################################
@@ -232,58 +322,46 @@ c = ROOT.TCanvas()
 
 h_ell1_pt.Draw("E") # put error bars 
 c.SaveAs("h_ell1_PT.pdf")
-
 h_ell1_E.Draw("E")
 c.SaveAs("h_ell1_E.pdf")
-
 h_ell2_pt.Draw("E")
 c.SaveAs("h_ell2_PT.pdf")
-
 h_ell2_E.Draw("E")
 c.SaveAs("h_ell2_E.pdf")
 
 h_bjet1_E.Draw("E")
 c.SaveAs("h_bjet1_E.pdf")
-
 h_bjet2_E.Draw("E")
 c.SaveAs("h_bjet2_E.pdf")
 
 h_nu_ell1_E.Draw("E")
 c.SaveAs("h_nu_ell1_E.pdf")
-
 h_nu_ell1_pt.Draw("E")
 c.SaveAs("h_nu_ell1_pt.pdf")
-
 h_nu_ell2_E.Draw("E")
 c.SaveAs("h_nu_ell2_E.pdf")
-
 h_nu_ell2_pt.Draw("E")
 c.SaveAs("h_nu_ell2_pt.pdf")
 
 h_mT2_W.Draw("E")
 c.SaveAs("h_mT2_W.pdf")
-
 h_mT2prime_W.Draw("E")
 c.SaveAs("h_mT2prime_W.pdf")
 
 h_mT2_t_11_22.Draw("E")
 c.SaveAs("h_mT2_t_11_22.pdf")
-
 h_mT2_t_12_21.Draw("E")
 c.SaveAs("h_mT2_t_12_21.pdf")
-
 h_mT2_t_min.Draw("E")
 c.SaveAs("h_mT2_t_min.pdf")
 
 h_mT_ell1.Draw("E")
 c.SaveAs("h_mT_ell1.pdf")
-
 h_mT_ell1__forMt2Overlay.Draw("E")
 c.SaveAs("h_mT_ell1__forMt2Overlay.pdf")
 
 h_EtMiss.Draw("E") 
 c.SaveAs("h_EtMiss.pdf")
-
 h_EtMiss_phi.Draw("E") 
 c.SaveAs("h_EtMiss_phi.pdf")
 
@@ -294,13 +372,22 @@ h_truth_numNu.Draw("E")
 c.SaveAs("h_truth_numNu.pdf")
 
 h_mT2dc_diff_alpha_1.Draw("E") 
-c.SaveAs("h_mT2dc_diff_alpha_1_2VEC_SLOW.pdf")
-
+c.SaveAs("h_mT2dc_diff_alpha_1.pdf")
 h_mT2dc_alpha_1.Draw("E")
-c.SaveAs("h_mT2dc_alpha_1_2VEC_SLOW.pdf") 
-    
+c.SaveAs("h_mT2dc_alpha_1.pdf") 
 h_mT2prime_W.Draw("E") 
-c.SaveAs("h_mt2prime_W_2VEC_SLOW.pdf") 
+c.SaveAs("h_mT2prime_W.pdf")
+h_mT2prime_t_alpha_1.Draw("E")
+c.SaveAs("h_mT2prime_t_alpha_1.pdf")
+
+h_mT2prime_W_alpha_0.Draw("E") 
+c.SaveAs("h_mT2prime_W_alpha_0.pdf") 
+h_mT2dc_diff_alpha_0.Draw("E") 
+c.SaveAs("h_mT2dc_diff_alpha_0.pdf") 
+h_mT2dc_alpha_0.Draw("E") 
+c.SaveAs("h_mT2dc_alpha_0.pdf") 
+h_mT2prime_t.Draw("E") 
+c.SaveAs("h_mT2prime_t.pdf") 
     
 # save to ROOT output files
 h_ell1_pt.Write()
@@ -333,8 +420,14 @@ h_EtMiss_phi.Write()
 h_eventNumber.Write() 
 h_truth_numNu.Write() 
 
-h_mT2dc_diff_alpha_1.Write() 
-h_mT2dc_alpha_1.Write()   
+h_mT2dc_diff_alpha_1.Write()
+h_mT2dc_alpha_1.Write()
 h_mT2prime_W.Write() 
+h_mT2prime_t_alpha_1.Write() 
+
+h_mT2prime_W_alpha_0.Write() 
+h_mT2dc_diff_alpha_0.Write()
+h_mT2dc_alpha_0.Write() 
+h_mT2prime_t.Write() 
 
 f_outputRoot.Close()

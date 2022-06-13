@@ -57,14 +57,14 @@ plotCounter = 0
 plotCounter += 1
 print("plotCounter = ", plotCounter)
 
-histLabel__mtW_mt2 = "mt2(W)" 
-histLabel__mtW_mt2prime = "mt2'(W | alpha = 1)" 
-inputHist__mtW_mt2 = "h_mT2_W"  
-inputHist__mtW_mt2prime = "h_mT2prime_W" # h_mT2dc_alpha_1 (equivalent to) 
-xAxisDescription__mtW = "Transverse mass of W estimator [GeV]" 
+histLabel__mtW_mt2 = "h_mT2_t_11_22" 
+histLabel__mtW_mt2prime = "mt'(t | alpha = 0)" 
+inputHist__mtW_mt2 = "h_mT2_t_11_22"  
+inputHist__mtW_mt2prime = "h_mT2dc_alpha_0" # h_mT2dc_alpha_1 (equivalent to) 
+xAxisDescription__mtW = "Transverse mass of t estimator [GeV]" 
 yAxisDescription__mtW = "Number of events / 1 GeV" 
-outFile__mtW = "mtW_overlay" 
-title__mtW = "Estimators of W boson transverse mass"
+outFile__mtW = "mWt_overlay" 
+title__mtW = "Estimators of t transverse mass"
 ratioMin = 0.1
 ratioMax = 4
 
@@ -90,6 +90,10 @@ overflow_v2 = h_v2.GetBinContent( h_v2.GetXaxis().GetNbins() + 1 )
 
 maxBinValue = 1.25 * max(maxBinYvalue_h_v1, maxBinYvalue_h_v2)   # For histograms without overflow bins
 # maxBinValue = 1.25 * max(maxBinYvalue_h_v1, maxBinYvalue_h_v2, underflow_v1, underflow_v2, overflow_v1, overflow_v2) # for histograms with overflow bins
+
+# Rebinning
+h_v1.Rebin(4)
+h_v2.Rebin(4)
 
 # Use this as part of shifting the y axis title position and not having it overlap the rest of the plot
 c1.SetLeftMargin(0.1)
