@@ -60,14 +60,17 @@ h_truth_numNu = ROOT.TH1F("h_truth_numNu", "True number of ejected neutrinos; Nu
 # alpha = 1
 h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
 h_mT2dc_alpha_1 = ROOT.TH1F("h_mT2dc_alpha_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
-h_mT2prime_W = ROOT.TH1F("h_mT2prime_W", "mt2'(W); mt2'(W) [GeV]; Number of entries / 1 GeV", 200, 0, 200)
-h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(W); mt2'(t) [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mT2prime_W = ROOT.TH1F("h_mT2prime_W", "mt2'(W); mt2'(W) [GeV]; Number of entries / 2 GeV", 100, 0, 200)
+h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(t); mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_alpha_1 = ROOT.TH1F("h_pT_alpha_1", "pT_alpha_1(t); pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 
 # alpha = 0 
 h_mT2dc_diff_alpha_0  = ROOT.TH1F("h_mT2dc_diff_alpha_0", "mT2dc(alpha = 0) - mt2_t_bjet1ell1_bjet2ell2; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
-h_mT2dc_alpha_0 = ROOT.TH1F("h_mT2dc_alpha_0", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 1 GeV", 300, 0, 300)
-h_mT2prime_W_alpha_0 = ROOT.TH1F("h_mT2prime_W_alpha_0", "mt2'(W); mt2'(W) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
-h_mT2prime_t = ROOT.TH1F("h_mT2prime_t", "mt2'(t); mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_mT2dc_alpha_0 = ROOT.TH1F("h_mT2dc_alpha_0", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 3 GeV", 100, 0, 300)
+h_mT2prime_W_alpha_0 = ROOT.TH1F("h_mT2prime_W_alpha_0", "mt2'(W); mt2'(W) [GeV]; Number of entries / 3 GeV", 300, 0, 300)
+h_mT2prime_t = ROOT.TH1F("h_mT2prime_t", "mt2'(t); mt2'(t) [GeV]; Number of entries / 3 GeV", 100, 0, 300)
+h_pT_alpha_0 = ROOT.TH1F("h_pT_alpha_0", "pT_alpha_0(t); pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+
 
 ##############################################
 # Define constants
@@ -215,7 +218,7 @@ for i in range(1000):
     invis_sideA_array_guess_18 = met[:2] - ell1_sideA_array[:2]
     invis_sideA_array_guess_19 = met[:2] - ell2_sideB_array[:2]
     invis_sideA_array_guess_20 = met[:2] - bjet1_sideA_array[:2]  
-    invis_sideA_array_guess_21 = met[:2] - bjet2_sideB_array[:2]  
+    invis_sideA_array_guess_21 = met[:2] - bjet2_sideB_array[:2]
     
     def objective(invis_sideA_2vec): # minimise over a 2-vector array, having components px and py 
         invis_sideA_array = np.array([invis_sideA_2vec[0], invis_sideA_2vec[1], 0, 
@@ -231,6 +234,10 @@ for i in range(1000):
     
         return alphaList[index]*alpha_term + (1-alphaList[index])*beta_term 
     
+    def constraint_1(invis_sideA_2vec):
+        lower_bound = 50
+        return invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2 - lower_bound**2 
+        
     if calcStyle == 'fast': 
         invis_sideA_array_guesses = [invis_sideA_array_guess, invis_sideA_array_guess_2, invis_sideA_array_guess_3, 
                                      invis_sideA_array_guess_4, invis_sideA_array_guess_5, invis_sideA_array_guess_6, 
@@ -260,12 +267,14 @@ for i in range(1000):
         guess_19 = objective(invis_sideA_array_guess_19)   
         guess_20 = objective(invis_sideA_array_guess_20)   
         guess_21 = objective(invis_sideA_array_guess_21)
-        
+                
         guesses = [guess, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7, guess_8, guess_9, guess_10, guess_11,
                   guess_12, guess_13, guess_14, guess_15, guess_16, guess_17, guess_18, guess_19, guess_20, guess_21] 
         
+        cons = [{'type': 'ineq', 'fun': constraint_1}] 
+        
         sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
-                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}) 
+                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}, constraints=cons)  
         
         print('np.argmin(guesses)', np.argmin(guesses))
         what_index.append([np.argmin(guesses)]) 
@@ -275,12 +284,14 @@ for i in range(1000):
             h_mT2dc_alpha_0.Fill(sol.fun) 
             h_mT2prime_W_alpha_0.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x)) 
             h_mT2prime_t.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            h_pT_alpha_0.Fill(np.sqrt(sol.x[0]**2 + sol.x[1]**2))
             
         elif index == 1:
             h_mT2dc_diff_alpha_1.Fill(sol.fun - mt2_W)  
             h_mT2dc_alpha_1.Fill(sol.fun) 
             h_mT2prime_W.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
             h_mT2prime_t_alpha_1.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            h_pT_alpha_1.Fill(np.sqrt(sol.x[0]**2 + sol.x[1]**2))
     
     elif calcStyle == 'slow':
         sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess_1, method='SLSQP', 
@@ -379,6 +390,8 @@ h_mT2prime_W.Draw("E")
 c.SaveAs("h_mT2prime_W.pdf")
 h_mT2prime_t_alpha_1.Draw("E")
 c.SaveAs("h_mT2prime_t_alpha_1.pdf")
+h_pT_alpha_1.Draw("E")
+c.SaveAs("h_pT_alpha_1.pdf")
 
 h_mT2prime_W_alpha_0.Draw("E") 
 c.SaveAs("h_mT2prime_W_alpha_0.pdf") 
@@ -387,7 +400,10 @@ c.SaveAs("h_mT2dc_diff_alpha_0.pdf")
 h_mT2dc_alpha_0.Draw("E") 
 c.SaveAs("h_mT2dc_alpha_0.pdf") 
 h_mT2prime_t.Draw("E") 
-c.SaveAs("h_mT2prime_t.pdf") 
+c.SaveAs("h_mT2prime_t.pdf")  
+h_pT_alpha_0.Draw("E")
+c.SaveAs("h_pT_alpha_0.pdf")
+
     
 # save to ROOT output files
 h_ell1_pt.Write()
@@ -424,10 +440,12 @@ h_mT2dc_diff_alpha_1.Write()
 h_mT2dc_alpha_1.Write()
 h_mT2prime_W.Write() 
 h_mT2prime_t_alpha_1.Write() 
+h_pT_alpha_1.Write()
 
 h_mT2prime_W_alpha_0.Write() 
 h_mT2dc_diff_alpha_0.Write()
 h_mT2dc_alpha_0.Write() 
 h_mT2prime_t.Write() 
+h_pT_alpha_0.Write() 
 
 f_outputRoot.Close()
