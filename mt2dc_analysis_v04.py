@@ -57,20 +57,37 @@ h_eventNumber = ROOT.TH1F("h_event_num", "Event Number; Event number; Number of 
 h_truth_numNu = ROOT.TH1F("h_truth_numNu", "True number of ejected neutrinos; Number; Events / 1 u ", 10, 0, 10) 
 
 # Plots of mt2dc calculation   
-# alpha = 1
-h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
-h_mT2dc_alpha_1 = ROOT.TH1F("h_mT2dc_alpha_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
-h_mT2prime_W = ROOT.TH1F("h_mT2prime_W", "mt2'(W); mt2'(W) [GeV]; Number of entries / 2 GeV", 100, 0, 200)
-h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(t); mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
-h_pT_alpha_1 = ROOT.TH1F("h_pT_alpha_1", "pT_alpha_1(t); pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
-
-# alpha = 0 
+# alpha = 0 (UC = unconstrained) 
 h_mT2dc_diff_alpha_0  = ROOT.TH1F("h_mT2dc_diff_alpha_0", "mT2dc(alpha = 0) - mt2_t_bjet1ell1_bjet2ell2; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
 h_mT2dc_alpha_0 = ROOT.TH1F("h_mT2dc_alpha_0", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 3 GeV", 100, 0, 300)
 h_mT2prime_W_alpha_0 = ROOT.TH1F("h_mT2prime_W_alpha_0", "mt2'(W); mt2'(W) [GeV]; Number of entries / 3 GeV", 300, 0, 300)
-h_mT2prime_t = ROOT.TH1F("h_mT2prime_t", "mt2'(t); mt2'(t) [GeV]; Number of entries / 3 GeV", 100, 0, 300)
+h_mT2prime_t_alpha_0 = ROOT.TH1F("h_mT2prime_t_alpha_0", "mt2'(t); mt2'(t) [GeV]; Number of entries / 3 GeV", 100, 0, 300)
 h_pT_alpha_0 = ROOT.TH1F("h_pT_alpha_0", "pT_alpha_0(t); pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 
+h_mT2dc_diff_alpha_0_UC  = ROOT.TH1F("h_mT2dc_diff_alpha_0_UC", "mT2dc(alpha = 0) - mt2_t_bjet1ell1_bjet2ell2; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
+h_mT2dc_alpha_0_UC = ROOT.TH1F("h_mT2dc_alpha_0_UC", "mT2dc(alpha = 0); mT2dc [GeV]; Number of entries / 3 GeV", 100, 0, 300)
+h_mT2prime_W_alpha_0_UC = ROOT.TH1F("h_mT2prime_W_alpha_0_UC", "mt2'(W); mt2'(W) [GeV]; Number of entries / 3 GeV", 300, 0, 300)
+h_mT2prime_t_alpha_0_UC = ROOT.TH1F("h_mT2prime_t_alpha_0_UC", "mt2'(t); mt2'(t) [GeV]; Number of entries / 3 GeV", 100, 0, 300)
+h_pT_sideA_alpha_0_UC = ROOT.TH1F("h_pT_sideA_alpha_0_UC", "pT_alpha_0; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_sideB_alpha_0_UC = ROOT.TH1F("h_pT_sideB_alpha_0_UC", "pT_alpha_0; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_min_alpha_0_UC = ROOT.TH1F("h_pT_min_alpha_0_UC", "pT_min_alpha_0; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_ratio_alpha_0_UC = ROOT.TH1F("h_pT_ratio_alpha_0_UC", "|pT_sideA|/|met| (alpha = 0); |pT_sideA|/|met|; Number of entries / 0.05 ", 20, 0, 1)
+
+# alpha = 1 (UC = unconstrained) 
+h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
+h_mT2dc_alpha_1 = ROOT.TH1F("h_mT2dc_alpha_1", "mT2dc(alpha = 1); mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mT2prime_W_alpha_1 = ROOT.TH1F("h_mT2prime_W_alpha_1", "mt2'(W); mt2'(W) [GeV]; Number of entries / 2 GeV", 100, 0, 200)
+h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(t); mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_alpha_1 = ROOT.TH1F("h_pT_alpha_1", "pT_alpha_1(t); pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+
+h_mT2dc_diff_alpha_1_UC = ROOT.TH1F("h_mT2dc_diff_alpha_1_UC", "mT2dc(alpha = 1) - mT2(W) [no constraint]; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
+h_mT2dc_alpha_1_UC = ROOT.TH1F("h_mT2dc_alpha_1_UC", "mT2dc(alpha = 1) [no constraint]; mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mT2prime_W_alpha_1_UC = ROOT.TH1F("h_mT2prime_W_alpha_1_UC", "mt2'(W) [no constraint]; mt2'(W) [GeV]; Number of entries / 2 GeV", 100, 0, 200)
+h_mT2prime_t_alpha_1_UC = ROOT.TH1F("h_mT2prime_t_alpha_1_UC", "mt2'(t) [no constraint]; mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_sideA_alpha_1_UC = ROOT.TH1F("h_pT_sideA_alpha_1_UC", "pT_sideA_alpha_1 [no constraint]; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_sideB_alpha_1_UC = ROOT.TH1F("h_pT_sideB_alpha_1_UC", "pT_sideB_alpha_1 [no constraint]; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_min_alpha_1_UC = ROOT.TH1F("h_pT_min_alpha_1_UC", "min(pT_sideA_alpha_1, pT_sideB_alpha_1) [no constraint]; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
+h_pT_ratio_alpha_1_UC = ROOT.TH1F("h_pT_ratio_alpha_1_UC", "|pT_sideA|/|met| (alpha = 1) [no constraint]; |pT_sideA|/|met|; Number of entries / 0.05 ", 20, 0, 1)
 
 ##############################################
 # Define constants
@@ -153,7 +170,7 @@ for i in range(1000):
     h_EtMiss.Fill(t.EtMiss) 
     h_EtMiss_phi.Fill(t.EtMiss_phi) 
     
-    # get tranverse mass information
+    # get transverse mass information
     mt2_W = t.mt2_W_ell1ell2
     mt2_t_11_22 = t.mt2_t_bjet1ell1_bjet2ell2
     mt2_t_12_21 = t.mt2_t_bjet1ell2_bjet2ell1
@@ -234,9 +251,13 @@ for i in range(1000):
     
         return alphaList[index]*alpha_term + (1-alphaList[index])*beta_term 
     
+    pT_lower_bound = 20
     def constraint_1(invis_sideA_2vec):
-        lower_bound = 50
-        return invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2 - lower_bound**2 
+        return invis_sideA_2vec[0]**2 + invis_sideA_2vec[1]**2 - pT_lower_bound**2 
+    
+    def constraint_2(invis_sideA_2vec):
+        invis_sideB_2vec = met[:2] - invis_sideA_2vec 
+        return invis_sideB_2vec[0]**2 + invis_sideB_2vec[1]**2 - pT_lower_bound**2 
         
     if calcStyle == 'fast': 
         invis_sideA_array_guesses = [invis_sideA_array_guess, invis_sideA_array_guess_2, invis_sideA_array_guess_3, 
@@ -271,8 +292,10 @@ for i in range(1000):
         guesses = [guess, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7, guess_8, guess_9, guess_10, guess_11,
                   guess_12, guess_13, guess_14, guess_15, guess_16, guess_17, guess_18, guess_19, guess_20, guess_21] 
         
-        cons = [{'type': 'ineq', 'fun': constraint_1}] 
+        cons = [{'type': 'ineq', 'fun': constraint_1},  {'type': 'ineq', 'fun': constraint_2}] 
         
+        sol_UC = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
+                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})  
         sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
                           options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}, constraints=cons)  
         
@@ -283,15 +306,35 @@ for i in range(1000):
             h_mT2dc_diff_alpha_0.Fill(sol.fun - mt2_t_11_22) 
             h_mT2dc_alpha_0.Fill(sol.fun) 
             h_mT2prime_W_alpha_0.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x)) 
-            h_mT2prime_t.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
-            h_pT_alpha_0.Fill(np.sqrt(sol.x[0]**2 + sol.x[1]**2))
-            
+            h_mT2prime_t_alpha_0.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            h_pT_alpha_0.Fill(np.linalg.norm(sol.x))
+
+            # unconstrained 
+            h_mT2dc_diff_alpha_0_UC.Fill(sol_UC.fun - mt2_t_11_22) 
+            h_mT2dc_alpha_0_UC.Fill(sol_UC.fun) 
+            h_mT2prime_W_alpha_0_UC.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x)) 
+            h_mT2prime_t_alpha_0_UC.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x))  
+            h_pT_sideA_alpha_0_UC.Fill(np.linalg.norm(sol_UC.x)) # magnitude pT A side 
+            h_pT_sideB_alpha_0_UC.Fill(np.linalg.norm(met[:2]) - np.linalg.norm(sol_UC.x)) # magnitude pT B side 
+            h_pT_min_alpha_0_UC.Fill(min(np.linalg.norm(sol_UC.x), np.linalg.norm(met[:2]) - np.linalg.norm(sol_UC.x)))
+            h_pT_ratio_alpha_0_UC.Fill(np.linalg.norm(sol_UC.x)/np.linalg.norm(met[:2])) 
+           
         elif index == 1:
             h_mT2dc_diff_alpha_1.Fill(sol.fun - mt2_W)  
             h_mT2dc_alpha_1.Fill(sol.fun) 
-            h_mT2prime_W.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
+            h_mT2prime_W_alpha_1.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
             h_mT2prime_t_alpha_1.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
-            h_pT_alpha_1.Fill(np.sqrt(sol.x[0]**2 + sol.x[1]**2))
+            h_pT_alpha_1.Fill(np.linalg.norm(sol.x))
+
+            # unconstrained 
+            h_mT2dc_diff_alpha_1_UC.Fill(sol_UC.fun - mt2_W)  
+            h_mT2dc_alpha_1_UC.Fill(sol_UC.fun) 
+            h_mT2prime_W_alpha_1_UC.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x))  
+            h_mT2prime_t_alpha_1_UC.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x))  
+            h_pT_sideA_alpha_1_UC.Fill(np.linalg.norm(sol_UC.x))
+            h_pT_sideB_alpha_1_UC.Fill(np.linalg.norm(met[:2]) - np.linalg.norm(sol_UC.x))           
+            h_pT_min_alpha_1_UC.Fill(min(np.linalg.norm(sol_UC.x), np.linalg.norm(met[:2]) - np.linalg.norm(sol_UC.x))) 
+            h_pT_ratio_alpha_1_UC.Fill(np.linalg.norm(sol_UC.x)/np.linalg.norm(met[:2])) 
     
     elif calcStyle == 'slow':
         sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess_1, method='SLSQP', 
@@ -317,11 +360,11 @@ for i in range(1000):
         if index == 0:
             h_mT2dc_diff_alpha_0.Fill(sol_fun - mt2_t_11_22) 
             h_mT2dc_alpha_0.Fill(sol_fun) 
-            h_mT2prime_t.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
+            h_mT2prime_t_alpha_0.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
         elif index == 1:
             h_mT2dc_diff_alpha_1.Fill(sol_fun - mt2_W) 
             h_mT2dc_alpha_1.Fill(sol_fun) 
-            h_mT2prime_W.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
+            h_mT2prime_W_alpha_1.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
             
 print(np.mean(what_index), np.std(what_index, ddof=1)) 
 print(what_index) 
@@ -356,8 +399,6 @@ c.SaveAs("h_nu_ell2_pt.pdf")
 
 h_mT2_W.Draw("E")
 c.SaveAs("h_mT2_W.pdf")
-h_mT2prime_W.Draw("E")
-c.SaveAs("h_mT2prime_W.pdf")
 
 h_mT2_t_11_22.Draw("E")
 c.SaveAs("h_mT2_t_11_22.pdf")
@@ -386,12 +427,29 @@ h_mT2dc_diff_alpha_1.Draw("E")
 c.SaveAs("h_mT2dc_diff_alpha_1.pdf")
 h_mT2dc_alpha_1.Draw("E")
 c.SaveAs("h_mT2dc_alpha_1.pdf") 
-h_mT2prime_W.Draw("E") 
-c.SaveAs("h_mT2prime_W.pdf")
+h_mT2prime_W_alpha_1.Draw("E") 
+c.SaveAs("h_mT2prime_W_alpha_1.pdf")
 h_mT2prime_t_alpha_1.Draw("E")
 c.SaveAs("h_mT2prime_t_alpha_1.pdf")
 h_pT_alpha_1.Draw("E")
 c.SaveAs("h_pT_alpha_1.pdf")
+
+h_mT2dc_diff_alpha_1_UC.Draw("E") 
+c.SaveAs("h_mT2dc_diff_alpha_1_UC.pdf")
+h_mT2dc_alpha_1_UC.Draw("E")
+c.SaveAs("h_mT2dc_alpha_1_UC.pdf") 
+h_mT2prime_W_alpha_1_UC.Draw("E") 
+c.SaveAs("h_mT2prime_W_alpha_1_UC.pdf")
+h_mT2prime_t_alpha_1_UC.Draw("E")
+c.SaveAs("h_mT2prime_t_alpha_1_UC.pdf")
+h_pT_sideA_alpha_1_UC.Draw("E")
+c.SaveAs("h_pT_sideA_alpha_1_UC.pdf")
+h_pT_sideB_alpha_1_UC.Draw("E")
+c.SaveAs("h_pT_sideB_alpha_1_UC.pdf")
+h_pT_min_alpha_1_UC.Draw("E")
+c.SaveAs("h_pT_min_alpha_1_UC.pdf")
+h_pT_ratio_alpha_1_UC.Draw("E")
+c.SaveAs("h_pT_ratio_alpha_1_UC.pdf")
 
 h_mT2prime_W_alpha_0.Draw("E") 
 c.SaveAs("h_mT2prime_W_alpha_0.pdf") 
@@ -399,11 +457,27 @@ h_mT2dc_diff_alpha_0.Draw("E")
 c.SaveAs("h_mT2dc_diff_alpha_0.pdf") 
 h_mT2dc_alpha_0.Draw("E") 
 c.SaveAs("h_mT2dc_alpha_0.pdf") 
-h_mT2prime_t.Draw("E") 
-c.SaveAs("h_mT2prime_t.pdf")  
+h_mT2prime_t_alpha_0.Draw("E") 
+c.SaveAs("h_mT2prime_t_alpha_0.pdf")  
 h_pT_alpha_0.Draw("E")
 c.SaveAs("h_pT_alpha_0.pdf")
 
+h_mT2prime_W_alpha_0_UC.Draw("E") 
+c.SaveAs("h_mT2prime_W_alpha_0_UC.pdf") 
+h_mT2dc_diff_alpha_0_UC.Draw("E") 
+c.SaveAs("h_mT2dc_diff_alpha_0_UC.pdf") 
+h_mT2dc_alpha_0_UC.Draw("E") 
+c.SaveAs("h_mT2dc_alpha_0_UC.pdf") 
+h_mT2prime_t_alpha_0_UC.Draw("E") 
+c.SaveAs("h_mT2prime_t_alpha_0_UC.pdf")  
+h_pT_sideA_alpha_0_UC.Draw("E")
+c.SaveAs("h_pT_sideA_alpha_0_UC.pdf")
+h_pT_sideB_alpha_0_UC.Draw("E")
+c.SaveAs("h_pT_sideB_alpha_0_UC.pdf")
+h_pT_min_alpha_0_UC.Draw("E")
+c.SaveAs("h_pT_min_alpha_0_UC.pdf")
+h_pT_ratio_alpha_0_UC.Draw("E")
+c.SaveAs("h_pT_ratio_alpha_0_UC.pdf")
     
 # save to ROOT output files
 h_ell1_pt.Write()
@@ -422,7 +496,6 @@ h_nu_ell1_pt.Write()
 h_nu_ell2_pt.Write()
 
 h_mT2_W.Write()
-h_mT2prime_W.Write()
 h_mT2_t_11_22.Write()
 h_mT2_t_12_21.Write()
 h_mT2_t_min.Write()
@@ -438,14 +511,32 @@ h_truth_numNu.Write()
 
 h_mT2dc_diff_alpha_1.Write()
 h_mT2dc_alpha_1.Write()
-h_mT2prime_W.Write() 
+h_mT2prime_W_alpha_1.Write() 
 h_mT2prime_t_alpha_1.Write() 
 h_pT_alpha_1.Write()
+
+h_mT2dc_diff_alpha_1_UC.Write()
+h_mT2dc_alpha_1_UC.Write()
+h_mT2prime_W_alpha_1_UC.Write() 
+h_mT2prime_t_alpha_1_UC.Write() 
+h_pT_sideA_alpha_1_UC.Write()
+h_pT_sideB_alpha_1_UC.Write()
+h_pT_min_alpha_1_UC.Write() 
+h_pT_ratio_alpha_1_UC.Write() 
 
 h_mT2prime_W_alpha_0.Write() 
 h_mT2dc_diff_alpha_0.Write()
 h_mT2dc_alpha_0.Write() 
-h_mT2prime_t.Write() 
+h_mT2prime_t_alpha_0.Write() 
 h_pT_alpha_0.Write() 
+
+h_mT2prime_W_alpha_0_UC.Write() 
+h_mT2dc_diff_alpha_0_UC.Write()
+h_mT2dc_alpha_0_UC.Write() 
+h_mT2prime_t_alpha_0_UC.Write() 
+h_pT_sideA_alpha_0_UC.Write()
+h_pT_sideB_alpha_0_UC.Write()
+h_pT_min_alpha_0_UC.Write() 
+h_pT_ratio_alpha_0_UC.Write() 
 
 f_outputRoot.Close()
