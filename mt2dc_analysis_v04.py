@@ -22,6 +22,7 @@ f_inputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_03_March_07_skim_m
 t = f_inputRoot.Get("variables")
 type(t)
 f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
+parameterFile = open("/Users/juliakim/Documents/styledPlotsOutputs/fit_functions_parameters.txt",'a')
 
 ##############################################
 # Define the plots to produce
@@ -80,6 +81,7 @@ h_pT_ratio_alpha_0_UC = ROOT.TH1F("h_pT_ratio_alpha_0_UC", "|pT_sideA|/|met| (al
 # alpha = 1 (UC = unconstrained) 
 h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
 h_mT2dc_alpha_1 = ROOT.TH1F("h_mT2dc_alpha_1", "mT2dc(alpha = 1) [constraint]; mT2dc [GeV]; Number of entries / 1 GeV", 200, 0, 200)
+h_mT2dc_alpha_1_limited = ROOT.TH1F("h_mT2dc_alpha_1_limited", "mT2dc(alpha = 1) [constraint]; mT2dc [GeV]; Number of entries / 1 GeV", 50, 50, 100)
 h_mT2prime_W_alpha_1 = ROOT.TH1F("h_mT2prime_W_alpha_1", "mt2'(W) [constraint]; mt2'(W) [GeV]; Number of entries / 2 GeV", 100, 0, 200)
 h_mT2prime_t_alpha_1 = ROOT.TH1F("h_mT2prime_t_alpha_1", "mt2'(t) [constraint]; mt2'(t) [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 h_pT_alpha_1 = ROOT.TH1F("h_pT_alpha_1", "pT_alpha_1(t) [constraint]; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
@@ -103,7 +105,6 @@ ROOT.gStyle.SetLabelFont(42, "XYZ")
 ROOT.gStyle.SetTitleOffset(1)
 ROOT.gStyle.SetTitleOffset(2, "XY")
 ROOT.gStyle.SetTitleOffset(1.25, "Z")
-ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetPalette(1)
 
 h_mT2dc_alpha_0_C_vs_UC = ROOT.TH2F("h_mT2dc_alpha_0_C_vs_UC", "(mT2dc(t) [no constraint], mT2dc(t) [constraint]); mT2dc(t) [no constraint]; mT2dc(t) [constraint]; Number of entries / (2, 2) GeV ", 130, 40, 300, 130, 40, 300) 
@@ -118,14 +119,21 @@ h_alpha_1_mT2dcW_vs_minPT = ROOT.TH2F("h_alpha_1_mT2dcW_vs_minPT", "(mT2dc(W) [c
 ##############################################
 m_W = 80.   # GeV 
 m_t = 173.  # GeV
-nentries = t.GetEntries() # 60599
+nentries = t.GetEntries() 
+# for optimisation mode 
 alphaListindex = input('Choose 0 (alpha = 0) or 1 (alpha = 1):') 
 calcStyle = input('Choose fast or slow:') 
+# for weighted averages 
+mt2dc_alpha_0_under_173 = []
+mt2dc_alpha_0_over_173 = [] 
+mt2dc_alpha_1_under_80 = []
+mt2dc_alpha_1_over_80 = [] 
 
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-for i in range(1000):
+# [212, 303, 318, 347, 352, 367]
+for i in range(nentries):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -318,11 +326,10 @@ for i in range(1000):
         cons = [{'type': 'ineq', 'fun': constraint_1},  {'type': 'ineq', 'fun': constraint_2}] 
         
         sol_UC = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
-                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True})  
-        sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
-                          options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}, constraints=cons)  
+                          options={'maxiter': 2000, 'ftol': 1e-7,'disp': True})  
+        sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='COBYLA', 
+                          options={'maxiter': 2000, 'ftol': 1e-7,'disp': True}, constraints=cons)  
        
-        
         if index == 0:
             h_mT2dc_diff_alpha_0.Fill(sol.fun - mt2_t_11_22) 
             h_mT2dc_alpha_0.Fill(sol.fun) 
@@ -348,10 +355,16 @@ for i in range(1000):
             
             h_mT2dc_alpha_0_C_vs_UC.Fill(sol_UC.fun, sol.fun)
             
+            # for weighted average calculation 
+            if sol.x < 173: 
+                mt2dc_alpha_0_under_173.append(sol.x) 
+            else:
+                mt2dc_alpha_0_over_173.append(sol.x)
         
         elif index == 1:
             h_mT2dc_diff_alpha_1.Fill(sol.fun - mt2_W)  
             h_mT2dc_alpha_1.Fill(sol.fun) 
+            h_mT2dc_alpha_1_limited.Fill(sol.fun) 
             h_mT2prime_W_alpha_1.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
             h_mT2prime_t_alpha_1.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x))  
             h_pT_alpha_1.Fill(np.linalg.norm(sol.x))
@@ -373,6 +386,12 @@ for i in range(1000):
             h_pT_ratio_alpha_1_UC.Fill(np.linalg.norm(sol_UC.x)/np.linalg.norm(met[:2])) 
             
             h_mT2dc_alpha_1_C_vs_UC.Fill(sol_UC.fun, sol.fun)
+
+            # for weighted average calculation 
+            if sol.x < 80: 
+                mt2dc_alpha_1_under_80.append(sol.x) 
+            else:
+                mt2dc_alpha_1_over_80.append(sol.x)
     
     elif calcStyle == 'slow':
         sol_1 = so.minimize(objective, x0 = invis_sideA_array_guess_1, method='SLSQP', 
@@ -404,7 +423,18 @@ for i in range(1000):
             h_mT2dc_alpha_1.Fill(sol_fun) 
             h_mT2prime_W_alpha_1.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_aray, met, sol_x))  
             
-            
+##############################################
+# Finish weighted average calculation. 
+##############################################
+if index == 0:
+    parameterFile.write('alpha = 0: weighted averages \n') 
+    parameterFile.write('under 173:' + str(np.mean(mt2dc_alpha_0_under_173)) + '\n') 
+    parameterFile.write('over 173:' + str(np.mean(mt2dc_alpha_0_over_173)) + '\n') 
+elif index == 1:
+    parameterFile.write('alpha = 1: weighted averages \n') 
+    parameterFile.write('under 80:' + str(np.mean(mt2dc_alpha_1_under_80)) + '\n') 
+    parameterFile.write('over 80:' + str(np.mean(mt2dc_alpha_1_over_80)) + '\n') 
+    
 ##############################################
 # Draw all histograms and save them.
 ##############################################
@@ -463,6 +493,8 @@ h_mT2dc_diff_alpha_1.Draw("E")
 c.SaveAs("h_mT2dc_diff_alpha_1.pdf")
 h_mT2dc_alpha_1.Draw("E")
 c.SaveAs("h_mT2dc_alpha_1.pdf") 
+h_mT2dc_alpha_1_limited.Draw("E")
+c.SaveAs("h_mT2dc_alpha_1_limited.pdf") 
 h_mT2prime_W_alpha_1.Draw("E") 
 c.SaveAs("h_mT2prime_W_alpha_1.pdf")
 h_mT2prime_t_alpha_1.Draw("E")
@@ -575,6 +607,7 @@ h_truth_numNu.Write()
 
 h_mT2dc_diff_alpha_1.Write()
 h_mT2dc_alpha_1.Write()
+h_mT2dc_alpha_1_limited.Write() 
 h_mT2prime_W_alpha_1.Write() 
 h_mT2prime_t_alpha_1.Write() 
 h_pT_alpha_1.Write()
