@@ -41,14 +41,14 @@ pT_sideA_alpha_0 = array('d', [0])
 pT_sideB_alpha_0 = array('d', [0]) 
 pT_min_alpha_0 = array('d', [0]) 
 
-mT2dc_diff_alpha_0_UC[0] = array('d', [0])
-mT2dc_alpha_0_UC[0] = array('d', [0])
-mT2prime_W_alpha_0_UC[0] = array('d', [0])
-mT2prime_t_alpha_0_UC[0] = array('d', [0])
-pT_alpha_0_UC[0] = array('d', [0])
-pT_sideA_alpha_0_UC[0] = array('d', [0])
-pT_sideB_alpha_0_UC[0] = array('d', [0])
-pT_min_alpha_0_UC[0] = array('d', [0])
+mT2dc_diff_alpha_0_UC = array('d', [0])
+mT2dc_alpha_0_UC = array('d', [0])
+mT2prime_W_alpha_0_UC = array('d', [0])
+mT2prime_t_alpha_0_UC  = array('d', [0])
+pT_alpha_0_UC = array('d', [0])
+pT_sideA_alpha_0_UC = array('d', [0])
+pT_sideB_alpha_0_UC = array('d', [0])
+pT_min_alpha_0_UC = array('d', [0])
 
 mT2dc_diff_alpha_1 = array('d', [0])
 mT2dc_alpha_1 = array('d', [0])
@@ -68,6 +68,43 @@ pT_sideA_alpha_1_UC = array('d', [0])
 pT_sideB_alpha_1_UC = array('d', [0])
 pT_min_alpha_1_UC = array('d', [0])
 
+mT2dc_diff_alpha_0_SLOW = array('d', [0])
+mT2dc_alpha_0_SLOW = array('d', [0])
+mT2prime_W_alpha_0_SLOW = array('d', [0])
+mT2prime_t_alpha_0_SLOW = array('d', [0])
+pT_alpha_0_SLOW = array('d', [0])
+pT_sideA_alpha_0_SLOW = array('d', [0])
+pT_sideB_alpha_0_SLOW = array('d', [0])
+pT_sideB_alpha_0_SLOW = array('d', [0])
+pT_min_alpha_0_SLOW = array('d', [0]) 
+
+mT2dc_diff_alpha_0_UC_SLOW = array('d', [0])
+mT2dc_alpha_0_UC_SLOW = array('d', [0])
+mT2prime_W_alpha_0_UC_SLOW = array('d', [0])
+mT2prime_t_alpha_0_UC_SLOW = array('d', [0])
+pT_alpha_0_UC_SLOW = array('d', [0])
+pT_sideA_alpha_0_UC_SLOW = array('d', [0])
+pT_sideB_alpha_0_UC_SLOW = array('d', [0])
+pT_min_alpha_0_UC_SLOW = array('d', [0])
+
+mT2dc_diff_alpha_1_SLOW = array('d', [0])
+mT2dc_alpha_1_SLOW = array('d', [0])
+mT2prime_W_alpha_1_SLOW = array('d', [0])
+mT2prime_t_alpha_1_SLOW = array('d', [0])
+pT_alpha_1_SLOW = array('d', [0])
+pT_sideA_alpha_1_SLOW = array('d', [0])
+pT_sideB_alpha_1_SLOW = array('d', [0])
+pT_sideB_alpha_1_SLOW = array('d', [0])
+pT_min_alpha_1_SLOW = array('d', [0])
+
+mT2dc_diff_alpha_1_UC_SLOW = array('d', [0])
+mT2dc_alpha_1_UC_SLOW = array('d', [0])
+mT2prime_W_alpha_1_UC_SLOW = array('d', [0])
+mT2prime_t_alpha_1_UC_SLOW = array('d', [0])
+pT_alpha_1_UC_SLOW = array('d', [0])
+pT_sideA_alpha_1_UC_SLOW = array('d', [0])
+pT_sideB_alpha_1_UC_SLOW = array('d', [0])
+pT_min_alpha_1_UC_SLOW = array('d', [0])
 
 
 # create the branches and assign the fill-variables to them as doubles (D)
@@ -108,8 +145,43 @@ tree.Branch("pT_sideA_alpha_1_UC", pT_sideA_alpha_1_UC, 'pT_sideA_alpha_1_UC/D')
 tree.Branch("pT_sideB_alpha_1_UC", pT_sideB_alpha_1_UC, 'pT_sideB_alpha_1_UC/D') 
 tree.Branch("pT_min_alpha_1_UC", pT_min_alpha_1_UC, 'pT_min_alpha_1_UC/D') 
 
-            
-             
+tree.Branch("mT2dc_diff_alpha_0_SLOW", mT2dc_diff_alpha_0_SLOW, 'mT2dc_diff_alpha_0_SLOW/D') 
+tree.Branch("mT2dc_alpha_0_SLOW", mT2dc_alpha_0_SLOW, 'mT2dc_alpha_0_SLOW/D')
+tree.Branch("mT2prime_W_alpha_0_SLOW", mT2prime_W_alpha_0_SLOW, 'mT2prime_W_alpha_0_SLOW/D') 
+tree.Branch("mT2prime_t_alpha_0_SLOW", mT2prime_t_alpha_0_SLOW, 'mT2prime_t_alpha_0_SLOW/D') 
+tree.Branch("pT_alpha_0_SLOW", pT_alpha_0_SLOW, 'pT_alpha_0_SLOW/D') 
+tree.Branch("pT_sideA_alpha_0_SLOW", pT_sideA_alpha_0_SLOW, 'pT_sideA_alpha_0_SLOW/D') 
+tree.Branch("pT_sideB_alpha_0_SLOW", pT_sideB_alpha_0_SLOW, 'pT_sideB_alpha_0_SLOW/D') 
+tree.Branch("pT_min_alpha_0_SLOW", pT_min_alpha_0_SLOW, 'pT_min_alpha_0_SLOW/D') 
+
+tree.Branch("mT2dc_diff_alpha_0_UC_SLOW", mT2dc_diff_alpha_0_UC_SLOW, 'mT2dc_diff_alpha_0_UC_SLOW/D') 
+tree.Branch("mT2dc_alpha_0_UC_SLOW", mT2dc_alpha_0_UC_SLOW, 'mT2dc_alpha_0_UC_SLOW/D')
+tree.Branch("mT2prime_W_alpha_0_UC_SLOW", mT2prime_W_alpha_0_UC_SLOW, 'mT2prime_W_alpha_0_UC_SLOW/D')
+tree.Branch("mT2prime_t_alpha_0_UC_SLOW", mT2prime_t_alpha_0_UC_SLOW, 'mT2prime_t_alpha_0_UC_SLOW/D')
+tree.Branch("pT_alpha_0_UC_SLOW", pT_alpha_0_UC_SLOW, 'pT_alpha_0_UC_SLOW/D')
+tree.Branch("pT_sideA_alpha_0_UC_SLOW", pT_sideA_alpha_0_UC_SLOW, 'pT_sideA_alpha_0_UC_SLOW/D')
+tree.Branch("pT_sideB_alpha_0_UC_SLOW", pT_sideB_alpha_0_UC_SLOW, 'pT_sideB_alpha_0_UC_SLOW/D')
+tree.Branch("pT_min_alpha_0_UC_SLOW", pT_min_alpha_0_UC_SLOW, 'pT_min_alpha_0_UC_SLOW/D') 
+
+tree.Branch("mT2dc_diff_alpha_1_SLOW", mT2dc_diff_alpha_1_SLOW, 'mT2dc_diff_alpha_1_SLOW/D') 
+tree.Branch("mT2dc_alpha_1_SLOW", mT2dc_alpha_1_SLOW, 'mT2dc_alpha_1_SLOW/D')
+tree.Branch("mT2prime_W_alpha_1_SLOW", mT2prime_W_alpha_1_SLOW, 'mT2prime_W_alpha_1_SLOW/D') 
+tree.Branch("mT2prime_t_alpha_1_SLOW", mT2prime_t_alpha_1_SLOW, 'mT2prime_t_alpha_1_SLOW/D') 
+tree.Branch("pT_alpha_1_SLOW", pT_alpha_1_SLOW, 'pT_alpha_1_SLOW/D') 
+tree.Branch("pT_sideA_alpha_1_SLOW", pT_sideA_alpha_1_SLOW, 'pT_sideA_alpha_1_SLOW/D') 
+tree.Branch("pT_sideB_alpha_1_SLOW", pT_sideB_alpha_1_SLOW, 'pT_sideB_alpha_1_SLOW/D') 
+tree.Branch("pT_min_alpha_1_SLOW", pT_min_alpha_1_SLOW, 'pT_min_alpha_1_SLOW/D') 
+
+tree.Branch("mT2dc_diff_alpha_1_UC_SLOW", mT2dc_diff_alpha_1_UC_SLOW, 'mT2dc_diff_alpha_1_UC_SLOW/D') 
+tree.Branch("mT2dc_alpha_1_UC_SLOW", mT2dc_alpha_1_UC_SLOW, 'mT2dc_alpha_1_UC_SLOW/D')
+tree.Branch("mT2prime_W_alpha_1_UC_SLOW", mT2prime_W_alpha_1_UC_SLOW, 'mT2prime_W_alpha_1_UC_SLOW/D')
+tree.Branch("mT2prime_t_alpha_1_UC_SLOW", mT2prime_t_alpha_1_UC_SLOW, 'mT2prime_t_alpha_1_UC_SLOW/D')
+tree.Branch("pT_alpha_1_UC_SLOW", pT_alpha_1_UC_SLOW, 'pT_alpha_1_UC_SLOW/D')
+tree.Branch("pT_sideA_alpha_1_UC_SLOW", pT_sideA_alpha_1_UC_SLOW, 'pT_sideA_alpha_1_UC_SLOW/D')
+tree.Branch("pT_sideB_alpha_1_UC_SLOW", pT_sideB_alpha_1_UC_SLOW, 'pT_sideB_alpha_1_UC_SLOW/D')
+tree.Branch("pT_min_alpha_1_UC_SLOW", pT_min_alpha_1_UC_SLOW, 'pT_min_alpha_1_UC_SLOW/D') 
+
+                
 ##############################################
 # Define the plots to produce
 ##############################################
@@ -264,7 +336,7 @@ mt2dc_alpha_1_over_80_SLOW = []
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-for i in range(10):
+for i in range(1000):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -618,8 +690,10 @@ for i in range(10):
                 pT_alpha_1[0] = np.linalg.norm(sol_alt.x)
                 pT_sideA_alpha_1[0] = np.linalg.norm(sol_alt.x)
                 pT_sideB_alpha_1[0] = np.linalg.norm(met[:2] - sol_alt.x) 
-                pT_min_alpha_1[0] = min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - sol_alt.x))/np.linalg.norm(met[:2]) 
+                pT_min_alpha_1[0] = min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - sol_alt.x))/np.linalg.norm(met[:2])
                 
+                tree.Fill() 
+
                 ###############################
                 # for weighted average calculation 
                 if sol_alt.fun < 80: 
@@ -778,6 +852,7 @@ for i in range(10):
         if index == 0:
         ### CONSTRAINED 
             if sol_message_array[np.argmin(sol_fun_array)] == True: 
+                # filling histograms 
                 h_mT2dc_diff_alpha_0_SLOW.Fill(sol_fun - mt2_t_11_22) 
                 h_mT2dc_alpha_0_SLOW.Fill(sol_fun) 
                 h_mT2prime_W_alpha_0_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_x)) 
@@ -788,6 +863,18 @@ for i in range(10):
                 h_pT_min_alpha_0_SLOW.Fill(min(np.linalg.norm(sol_x), np.linalg.norm(met[:2] - sol_x))/np.linalg.norm(met[:2]))
                 h_pT_ratio_alpha_0_SLOW.Fill(np.linalg.norm(sol_x)/np.linalg.norm(met[:2])) 
                 
+                # filling tree
+                mT2dc_diff_alpha_0_SLOW[0] = sol_fun - mt2_t_11_22 
+                mT2dc_alpha_0_SLOW[0] = sol_fun
+                mT2prime_W_alpha_0_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_x)
+                mT2prime_t_alpha_0_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_x)
+                pT_alpha_0_SLOW[0] = np.linalg.norm(sol_x)
+                pT_sideA_alpha_0_SLOW[0] = np.linalg.norm(sol_x)
+                pT_sideB_alpha_0_SLOW[0] = np.linalg.norm(met[:2] - sol_x) 
+                pT_min_alpha_0_SLOW[0] = min(np.linalg.norm(sol_x), np.linalg.norm(met[:2] - sol_x))/np.linalg.norm(met[:2])
+                
+                tree.Fill() 
+                
                 ###############################
                 # for weighted average calculation 
                 if sol_fun < 173: 
@@ -797,6 +884,7 @@ for i in range(10):
                 ###############################
                 
             else: 
+                # filling histograms 
                 h_mT2dc_diff_alpha_0_SLOW.Fill(sol_alt.fun - mt2_t_11_22) 
                 h_mT2dc_alpha_0_SLOW.Fill(sol_alt.fun) 
                 h_mT2prime_W_alpha_0_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)) 
@@ -807,6 +895,18 @@ for i in range(10):
                 h_pT_min_alpha_0_SLOW.Fill(min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - 
                                                                                          sol_alt.x))/np.linalg.norm(met[:2]))
                 h_pT_ratio_alpha_0_SLOW.Fill(np.linalg.norm(sol_alt.x)/np.linalg.norm(met[:2])) 
+                
+                # filling tree
+                mT2dc_diff_alpha_0_SLOW[0] = sol_alt.fun - mt2_t_11_22 
+                mT2dc_alpha_0_SLOW[0] = sol_alt.fun
+                mT2prime_W_alpha_0_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)
+                mT2prime_t_alpha_0_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)
+                pT_alpha_0_SLOW[0] = np.linalg.norm(sol_alt.x)
+                pT_sideA_alpha_0_SLOW[0] = np.linalg.norm(sol_alt.x)
+                pT_sideB_alpha_0_SLOW[0] = np.linalg.norm(met[:2] - sol_alt.x) 
+                pT_min_alpha_0_SLOW[0] = min(np.linalg.norm(sol.x), np.linalg.norm(met[:2] - sol_alt.x))/np.linalg.norm(met[:2])
+                
+                fill.Tree() 
                                 
                 ###############################
                 # for weighted average calculation 
@@ -816,7 +916,8 @@ for i in range(10):
                     mt2dc_alpha_0_over_173_SLOW.append(sol_alt.fun)
                 ###############################
 
-            # unconstrained 
+            ### UNCONSTRAINED  
+            # filling histograms 
             h_mT2dc_diff_alpha_0_UC_SLOW.Fill(sol_UC_fun - mt2_t_11_22) 
             h_mT2dc_alpha_0_UC_SLOW.Fill(sol_UC_fun) 
             h_mT2prime_W_alpha_0_UC_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)) 
@@ -827,8 +928,22 @@ for i in range(10):
                                                                                        sol_UC_x))/np.linalg.norm(met[:2]))
             h_pT_ratio_alpha_0_UC_SLOW.Fill(np.linalg.norm(sol_UC_x)/np.linalg.norm(met[:2]))
             
+            # filling tree 
+            mT2dc_diff_alpha_0_UC_SLOW[0] = sol_UC_fun - mt2_t_11_22 
+            mT2dc_alpha_0_UC_SLOW[0] = sol_UC_fun
+            mT2prime_W_alpha_0_UC_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)
+            mT2prime_t_alpha_0_UC_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)
+            pT_alpha_0_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
+            pT_sideA_alpha_0_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
+            pT_sideB_alpha_0_UC_SLOW[0] = np.linalg.norm(met[:2] - sol_UC_x) 
+            pT_min_alpha_0_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2] - sol_UC_x))/np.linalg.norm(met[:2])
+            
+            tree.Fill() 
+            
         elif index == 1:
+        ### CONSTRAINED 
             if sol_message_array[np.argmin(sol_fun_array)] == True: 
+                # filling histograms 
                 h_mT2dc_diff_alpha_1_SLOW.Fill(sol_fun - mt2_W) 
                 h_mT2dc_alpha_1_SLOW.Fill(sol_fun) 
                 h_mT2prime_W_alpha_1_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_x)) 
@@ -839,6 +954,19 @@ for i in range(10):
                 h_pT_min_alpha_1_SLOW.Fill(min(np.linalg.norm(sol_x), np.linalg.norm(met[:2] - sol_x))/np.linalg.norm(met[:2]))
                 h_pT_ratio_alpha_1_SLOW.Fill(np.linalg.norm(sol_x)/np.linalg.norm(met[:2])) 
                 
+                # filling tree
+                h_mT2dc_diff_alpha_1_SLOW[0] = sol_fun - mt2_W
+                h_mT2dc_alpha_1_SLOW[0] = sol_fun
+                h_mT2prime_W_alpha_1_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_x) 
+                h_mT2prime_t_alpha_1_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_x) 
+                h_pT_alpha_1_SLOW[0] = np.linalg.norm(sol_x)
+                h_pT_sideA_alpha_1_SLOW[0] = np.linalg.norm(sol_x) # magnitude pT A side 
+                h_pT_sideB_alpha_1_SLOW[0] = np.linalg.norm(met[:2] - sol_x) # magnitude pT B side 
+                h_pT_min_alpha_1_SLOW[0] = min(np.linalg.norm(sol_x), np.linalg.norm(met[:2] - sol_x))/np.linalg.norm(met[:2])
+                h_pT_ratio_alpha_1_SLOW[0] = np.linalg.norm(sol_x)/np.linalg.norm(met[:2]) 
+                
+                tree.Fill() 
+                
                 ###############################
                 # for weighted average calculation 
                 if sol_fun < 80: 
@@ -848,6 +976,7 @@ for i in range(10):
                 ###############################
                 
             else: 
+                # filling histograms 
                 h_mT2dc_diff_alpha_1_SLOW.Fill(sol_alt.fun - mt2_W) 
                 h_mT2dc_alpha_1_SLOW.Fill(sol_alt.fun) 
                 h_mT2prime_W_alpha_1_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)) 
@@ -858,6 +987,20 @@ for i in range(10):
                 h_pT_min_alpha_1_SLOW.Fill(min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - 
                                                                                          sol_alt.x))/np.linalg.norm(met[:2]))
                 h_pT_ratio_alpha_1_SLOW.Fill(np.linalg.norm(sol_alt.x)/np.linalg.norm(met[:2])) 
+
+                # filling tree
+                h_mT2dc_diff_alpha_1_SLOW[0] = sol_alt.fun - mt2_W 
+                h_mT2dc_alpha_1_SLOW[0] = sol_alt.fun 
+                h_mT2prime_W_alpha_1_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)
+                h_mT2prime_t_alpha_1_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                h_pT_alpha_1_SLOW[0] = np.linalg.norm(sol_alt.x)
+                h_pT_sideA_alpha_1_SLOW[0] = np.linalg.norm(sol_alt.x) # magnitude pT A side 
+                h_pT_sideB_alpha_1_SLOW[0] = np.linalg.norm(met[:2] - sol_alt.x) # magnitude pT B side 
+                h_pT_min_alpha_1_SLOW[0] = min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - 
+                                                                                         sol_alt.x))/np.linalg.norm(met[:2])
+                h_pT_ratio_alpha_1_SLOW[0] = np.linalg.norm(sol_x)/np.linalg.norm(met[:2])
+                
+                tree.Fill() 
                 
                 ###############################
                 # for weighted average calculation 
@@ -867,7 +1010,8 @@ for i in range(10):
                     mt2dc_alpha_1_over_80_SLOW.append(sol_alt.fun)
                 ###############################
                 
-            # unconstrained 
+            ### UNCONSTRAINED 
+            # filling histogram 
             h_mT2dc_diff_alpha_1_UC_SLOW.Fill(sol_UC_fun - mt2_W) 
             h_mT2dc_alpha_1_UC_SLOW.Fill(sol_UC_fun) 
             h_mT2prime_W_alpha_1_UC_SLOW.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)) 
@@ -877,6 +1021,18 @@ for i in range(10):
             h_pT_min_alpha_1_UC_SLOW.Fill(min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2]-
                                                                                        sol_UC_x))/np.linalg.norm(met[:2]))
             h_pT_ratio_alpha_1_UC_SLOW.Fill(np.linalg.norm(sol_UC_x)/np.linalg.norm(met[:2])) 
+            
+            # filling tree 
+            mT2dc_diff_alpha_1_UC_SLOW[0] = sol_UC_fun - mt2_W
+            mT2dc_alpha_1_UC_SLOW[0] = sol_UC_fun
+            mT2prime_W_alpha_1_UC_SLOW[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)
+            mT2prime_t_alpha_1_UC_SLOW[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC_x)
+            pT_alpha_1_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
+            pT_sideA_alpha_1_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
+            pT_sideB_alpha_1_UC_SLOW[0] = np.linalg.norm(met[:2] - sol_UC_x) 
+            pT_min_alpha_1_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2] - sol_UC_x))/np.linalg.norm(met[:2])
+            
+            tree.Fill() 
             
 ##############################################
 # Finish weighted average calculation. 
