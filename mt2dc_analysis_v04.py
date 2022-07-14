@@ -41,6 +41,8 @@ pT_sideA_alpha_0 = array('d', [0])
 pT_sideB_alpha_0 = array('d', [0]) 
 pT_min_alpha_0 = array('d', [0]) 
 
+muT2dc_alpha_0 = array('d', [0])
+
 mT2dc_diff_alpha_0_UC = array('d', [0])
 mT2dc_alpha_0_UC = array('d', [0])
 mT2prime_W_alpha_0_UC = array('d', [0])
@@ -116,6 +118,8 @@ tree.Branch("pT_alpha_0", pT_alpha_0, 'pT_alpha_0/D')
 tree.Branch("pT_sideA_alpha_0", pT_sideA_alpha_0, 'pT_sideA_alpha_0/D') 
 tree.Branch("pT_sideB_alpha_0", pT_sideB_alpha_0, 'pT_sideB_alpha_0/D') 
 tree.Branch("pT_min_alpha_0", pT_min_alpha_0, 'pT_min_alpha_0/D') 
+
+tree.Branch("muT2dc_alpha_0", muT2dc_alpha_0, 'muT2dc_alpha_0/D') 
 
 tree.Branch("mT2dc_diff_alpha_0_UC", mT2dc_diff_alpha_0_UC, 'mT2dc_diff_alpha_0_UC/D')
 tree.Branch("mT2dc_alpha_0_UC", mT2dc_alpha_0_UC, 'mT2dc_alpha_0_UC/D')
@@ -227,6 +231,12 @@ h_pT_sideB_alpha_0 = ROOT.TH1F("h_pT_sideB_alpha_0", "pT_sideB_alpha_0 [constrai
 h_pT_min_alpha_0 = ROOT.TH1F("h_pT_min_alpha_0", "min(pT_sideA_alpha_0, pT_sideB_alpha_0)/|met| [constraint]; pT [GeV]; Number of entries / 0.05 GeV", 20, 0, 1)
 h_pT_ratio_alpha_0 = ROOT.TH1F("h_pT_ratio_alpha_0", "|pT_sideA|/|met| (alpha = 0) [constraint]; |pT_sideA|/|met|; Number of entries / 0.05 ", 20, 0, 1)
 
+# mu histograms 
+h_muT2dc_alpha_0 = ROOT.TH1F("h_muT2dc_alpha_0", "muT2dc(alpha = 0) [constraint]; muT2dc [GeV]; Number of entries / 3 GeV", 30, 0, 3)
+h_muT2prime_W_alpha_0 = ROOT.TH1F("h_muT2prime_W_alpha_0", "mut2'(W) [constraint]; mut2'(W) [GeV]; Number of entries / 3 GeV", 30, 0, 3)
+h_muT2prime_t_alpha_0 = ROOT.TH1F("h_muT2prime_t_alpha_0", "mut2'(t) [constraint]; mut2'(t) [GeV]; Number of entries / 3 GeV", 30, 0, 3) 
+
+
 h_mT2dc_diff_alpha_0_UC  = ROOT.TH1F("h_mT2dc_diff_alpha_0_UC", "mT2dc(alpha = 0) - mt2_t_bjet1ell1_bjet2ell2 [no constraint]; Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
 h_mT2dc_alpha_0_UC = ROOT.TH1F("h_mT2dc_alpha_0_UC", "mT2dc(alpha = 0) [no constraint]; mT2dc [GeV]; Number of entries / 3 GeV", 100, 0, 300)
 h_mT2prime_W_alpha_0_UC = ROOT.TH1F("h_mT2prime_W_alpha_0_UC", "mt2'(W) [no constraint]; mt2'(W) [GeV]; Number of entries / 3 GeV", 300, 0, 300)
@@ -235,6 +245,11 @@ h_pT_sideA_alpha_0_UC = ROOT.TH1F("h_pT_sideA_alpha_0_UC", "pT_sideA_alpha_0 [no
 h_pT_sideB_alpha_0_UC = ROOT.TH1F("h_pT_sideB_alpha_0_UC", "pT_sideB_alpha_0 [no constraint]; pT [GeV]; Number of entries / 1 GeV", 300, 0, 300)
 h_pT_min_alpha_0_UC = ROOT.TH1F("h_pT_min_alpha_0_UC", "min(pT_sideA_alpha_0, pT_sideB_alpha_0)/|met| [no constraint]; pT [GeV]; Number of entries / 0.05  GeV", 20, 0, 1)
 h_pT_ratio_alpha_0_UC = ROOT.TH1F("h_pT_ratio_alpha_0_UC", "|pT_sideA|/|met| (alpha = 0) [no constraint]; |pT_sideA|/|met|; Number of entries / 0.05 ", 20, 0, 1)
+
+# mu histograms 
+h_muT2dc_alpha_0_UC = ROOT.TH1F("h_muT2dc_alpha_0_UC", "muT2dc(alpha = 0) [constraint]; muT2dc [GeV]; Number of entries / 3 GeV", 100, 0, 3)
+h_muT2prime_W_alpha_0_UC = ROOT.TH1F("h_muT2prime_W_alpha_0_UC", "mut2'(W) [constraint]; mut2'(W) [GeV]; Number of entries / 3 GeV", 300, 0, 3)
+h_muT2prime_t_alpha_0_UC = ROOT.TH1F("h_muT2prime_t_alpha_0_UC", "mut2'(t) [constraint]; mut2'(t) [GeV]; Number of entries / 3 GeV", 100, 0, 3)
 
 # alpha = 1 (UC = unconstrained) 
 h_mT2dc_diff_alpha_1 = ROOT.TH1F("h_mT2dc_diff_alpha_1", "mT2dc(alpha = 1) - mT2(W); Difference [GeV]; Number of entries / 2 GeV", 100, -100, 100)
@@ -336,7 +351,7 @@ mt2dc_alpha_1_over_80_SLOW = []
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-for i in range(1000):
+for i in range(nentries):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -528,11 +543,14 @@ for i in range(1000):
         guesses = [guess_1, guess_2, guess_3, guess_4, guess_5, guess_6, guess_7, guess_8, guess_9, guess_10, guess_11,
                   guess_12, guess_13, guess_14, guess_15, guess_16, guess_17, guess_18, guess_19, guess_20, guess_21] 
         
+        print(guesses)
+        
         sol_UC = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
                           options={'maxiter': 2000, 'ftol': 1e-7,'disp': True})  
         sol = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='SLSQP', 
                           options={'maxiter': 2000, 'ftol': 1e-7,'disp': True}, constraints=cons) 
-       
+      
+        
         if index == 0:
         ### CONSTRAINED   
             if sol.success == True: 
@@ -548,6 +566,10 @@ for i in range(1000):
                 h_pT_ratio_alpha_0.Fill(np.linalg.norm(sol.x)/np.linalg.norm(met[:2])) 
                 h_alpha_0_mT2dct_vs_minPT.Fill(sol.fun, min(np.linalg.norm(sol.x), np.linalg.norm(met[:2] - sol.x))) 
                 
+                h_muT2dc_alpha_0.Fill(sol.fun/m_t) 
+                h_muT2prime_W_alpha_0.Fill(DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x)/m_W) 
+                h_muT2prime_t_alpha_0.Fill(DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x)/m_t) 
+
                 # filling tree 
                 mT2dc_diff_alpha_0[0] = sol.fun - mt2_t_11_22 
                 mT2dc_alpha_0[0] = sol.fun
@@ -558,7 +580,9 @@ for i in range(1000):
                 pT_sideB_alpha_0[0] = np.linalg.norm(met[:2] - sol.x) 
                 pT_min_alpha_0[0] = min(np.linalg.norm(sol.x), np.linalg.norm(met[:2] - sol.x))/np.linalg.norm(met[:2])
                 
-                tree.Fill() 
+                muT2dc_alpha_0[0] = sol.fun/m_t 
+                
+                tree.Fill()
                 
                 ###############################
                 # for weighted average calculation
@@ -584,6 +608,8 @@ for i in range(1000):
                 h_pT_ratio_alpha_0.Fill(np.linalg.norm(sol_alt.x)/np.linalg.norm(met[:2])) 
                 h_alpha_0_mT2dct_vs_minPT.Fill(sol_alt.fun, min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - sol_alt.x))) 
                 
+                h_muT2dc_alpha_0.Fill(sol.fun/m_t) 
+                    
                 # filling tree 
                 mT2dc_diff_alpha_0[0] = sol_alt.fun - mt2_t_11_22 
                 mT2dc_alpha_0[0] = sol_alt.fun
@@ -593,6 +619,8 @@ for i in range(1000):
                 pT_sideA_alpha_0[0] = np.linalg.norm(sol_alt.x)
                 pT_sideB_alpha_0[0] = np.linalg.norm(met[:2] - sol_alt.x) 
                 pT_min_alpha_0[0] = min(np.linalg.norm(sol_alt.x), np.linalg.norm(met[:2] - sol_alt.x))/np.linalg.norm(met[:2])
+                
+                muT2dc_alpha_0[0] = sol.fun/m_t 
                 
                 tree.Fill() 
                 
@@ -644,7 +672,7 @@ for i in range(1000):
                 h_pT_min_alpha_1.Fill(min(np.linalg.norm(sol.x), np.linalg.norm(met[:2] - sol.x))/np.linalg.norm(met[:2]))
                 h_pT_ratio_alpha_1.Fill(np.linalg.norm(sol.x)/np.linalg.norm(met[:2])) 
                 h_alpha_1_mT2dcW_vs_minPT.Fill(sol.fun, min(np.linalg.norm(sol.x), np.linalg.norm(met[:2] - sol.x)))
-                
+               
                 # filling tree 
                 mT2dc_diff_alpha_1[0] = sol.fun - mt2_W 
                 mT2dc_alpha_1[0] = sol.fun
@@ -936,7 +964,7 @@ for i in range(1000):
             pT_alpha_0_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
             pT_sideA_alpha_0_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
             pT_sideB_alpha_0_UC_SLOW[0] = np.linalg.norm(met[:2] - sol_UC_x) 
-            pT_min_alpha_0_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2] - sol_UC_x))/np.linalg.norm(met[:2])
+            pT_min_alpha_0_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2]-sol_UC_x))/np.linalg.norm(met[:2])
             
             tree.Fill() 
             
@@ -1030,7 +1058,7 @@ for i in range(1000):
             pT_alpha_1_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
             pT_sideA_alpha_1_UC_SLOW[0] = np.linalg.norm(sol_UC_x)
             pT_sideB_alpha_1_UC_SLOW[0] = np.linalg.norm(met[:2] - sol_UC_x) 
-            pT_min_alpha_1_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2] - sol_UC_x))/np.linalg.norm(met[:2])
+            pT_min_alpha_1_UC_SLOW[0] = min(np.linalg.norm(sol_UC_x), np.linalg.norm(met[:2]-sol_UC_x))/np.linalg.norm(met[:2])
             
             tree.Fill() 
             
@@ -1171,6 +1199,15 @@ h_pT_min_alpha_0.Draw("E")
 c.SaveAs("h_pT_min_alpha_0.pdf") 
 h_pT_ratio_alpha_0.Draw("E")
 c.SaveAs("h_pT_ratio_alpha_0.pdf")
+
+h_muT2dc_alpha_0.Draw("E")
+c.SaveAs("h_muT2dc_alpha_0.pdf")
+
+h_muT2prime_W_alpha_0.Draw("E") 
+c.SaveAs("h_muT2prime_W_alpha_0.pdf")
+
+h_muT2prime_t_alpha_0.Draw("E") 
+c.SaveAs("h_muT2prime_t_alpha_0.pdf")
 
 h_mT2prime_W_alpha_0_UC.Draw("E") 
 c.SaveAs("h_mT2prime_W_alpha_0_UC.pdf") 
@@ -1342,6 +1379,9 @@ h_pT_sideA_alpha_0.Write()
 h_pT_sideB_alpha_0.Write()
 h_pT_min_alpha_0.Write() 
 h_pT_ratio_alpha_0.Write() 
+
+h_muT2dc_alpha_0.Write() 
+h_muT2prime_W_alpha_0.Write() 
 
 h_mT2prime_W_alpha_0_UC.Write() 
 h_mT2dc_diff_alpha_0_UC.Write()

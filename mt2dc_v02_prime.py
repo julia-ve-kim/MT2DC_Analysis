@@ -90,4 +90,3 @@ def get_beta_term(vis_sideA_array, vis_sideB_array, met, invis_sideA_2vec):
     beta_term_2 = mT_arrayCalc(vis_sideB_array[0] + vis_sideB_array[-1], met-invis_sideA_array) # mT(TBbB, pt_B)
     beta_term = max(beta_term_1, beta_term_2) 
     return beta_term 
-            

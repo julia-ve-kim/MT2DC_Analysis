@@ -11,10 +11,8 @@ import numpy as np
 f_inputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_06_June_14_truthSkim__mg5_ttbar_jet_001-059_v01.root", "read")
 t = f_inputRoot.Get("variables")
 type(t)
-f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_06_June_15_truth_analysis_v01.root", "recreate")
-
+f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_06_June_15_truth_analysis_v01.root", "update")
 outDir = "/Users/juliakim/Documents/truthAnalysisPlots/"  
-
 
 ##############################################
 # Define constants
@@ -30,7 +28,6 @@ nentries = t.GetEntries() # 10000
 
 h_W_A_Px = ROOT.TH1F("h_W_A_Px", "W_A_Px; Number of entries / 2 GeV; W_A_Px [GeV]", 300, -600, 600)
 h_W_A_Py = ROOT.TH1F("h_W_A_Py", "W_A_Py; Number of entries / 2 GeV; W_A_Py [GeV]", 300, -600, 600)
-h_W_A_PT = ROOT.TH1F("h_W_A_PT", "W_A_PT; Number of entries / 1 GeV; W_A_PT [GeV]", 300, 0, 300)
 h_W_A_daughter1 = ROOT.TH1F("h_W_A_daughter1", "W_A_daughter1; Number of entries / 2 units; W_A_daughter1", 40, 40, 120)
 h_W_A_daughter2 = ROOT.TH1F("h_W_A_daughter2", "W_A_daughter2; Number of entries / 2 units; W_A_daughter2", 40, 40, 120)
 h_W_A_mother1 = ROOT.TH1F("h_W_A_mother1", "W_A_mother1; Number of entries / 2 units; W_A_mother1", 50, 20, 120)
@@ -55,6 +52,18 @@ h_ell_B_mother1 = ROOT.TH1F("h_ell_B_mother1", "ell_B_mother1; Number of entries
 h_ell_B_mother2 = ROOT.TH1F("h_ell_B_mother2", "ell_B_mother2; Number of entries / 2 units; ell_B_mother2", 40, 20, 100)
 h_ell_B_pdg_id = ROOT.TH1F("h_ell_B_pdg_id", "ell_B_pdg_id; Number of entries / 1 unit; ell_B_pdg_id", 4, -14, -10)
 
+h_nu_A_Px = ROOT.TH1F("h_nu_A_Px", "nu_A_Px; Number of entries / 2 GeV; nu_A_Px [GeV]", 300, -300, 300)
+h_nu_A_Py = ROOT.TH1F("h_nu_A_Py", "nu_A_Py; Number of entries / 2 GeV; nu_A_Py [GeV]", 300, -300, 300)
+h_nu_A_PT = ROOT.TH1F("h_nu_A_PT", "nu_A_PT; Number of entries / 1 GeV; nu_A_PT [GeV]", 300, 0, 300)
+h_nu_A_daughter1 = ROOT.TH1F("h_nu_A_daughter1", "nu_A_daughter1; Number of entries /1 unit; nu_A_daughter1", 1, 0, 1)
+h_nu_A_daughter2 = ROOT.TH1F("h_nu_A_daughter2", "nu_A_daughter2; Number of entries / 1 units; nu_A_daughter2", 1, 0, 1)
+h_nu_A_mother1 = ROOT.TH1F("h_nu_A_mother1", "nu_A_mother1; Number of entries / 2 units; nu_A_mother1", 40, 40, 120)
+h_nu_A_mother2 = ROOT.TH1F("h_nu_A_mother2", "nu_A_mother2; Number of entries / 2 units; nu_A_mother2", 40, 40, 120)
+h_nu_A_pdg_id = ROOT.TH1F("h_nu_A_pdg_id", "nu_A_pdg_id; Number of entries / 1 unit; nu_A_pdg_id", 4, -14, -10)
+
+h_nu_B_Px = ROOT.TH1F("h_nu_B_Px", "nu_B_Px; Number of entries / 2 GeV; nu_B_Px [GeV]", 300, -300, 300)
+h_nu_B_Py = ROOT.TH1F("h_nu_B_Py", "nu_B_Py; Number of entries / 2 GeV; nu_B_Py [GeV]", 300, -300, 300)
+h_nu_B_PT = ROOT.TH1F("h_nu_B_PT", "nu_B_PT; Number of entries / 1 GeV; nu_B_PT [GeV]", 300, 0, 300)
 
 ##############################################
 # Main analysis - loop over all events
@@ -76,8 +85,6 @@ for i in range(nentries):
     h_W_A_mother1.Fill(t.W_A_mother1) 
     h_W_A_mother2.Fill(t.W_A_mother2)
     h_W_A_pdg_id.Fill(t.W_A_pdg_id) 
-    if np.sqrt(t.W_A_Px**2 + t.W_A_Py**2) > 10: 
-        h_W_A_PT.Fill(np.sqrt(t.W_A_Px**2 + t.W_A_Py**2)) 
         
     h_ell_A_Px.Fill(t.ell_A_Px)
     h_ell_A_Py.Fill(t.ell_A_Py)
@@ -98,6 +105,19 @@ for i in range(nentries):
     h_ell_B_pdg_id.Fill(t.ell_B_pdg_id)
     if np.sqrt(t.ell_B_Px**2 + t.ell_B_Py**2) > 10: 
         h_ell_B_PT.Fill(np.sqrt(t.ell_B_Px**2 + t.ell_B_Py**2)) 
+        
+    h_nu_A_Px.Fill(t.nu_A_Px)
+    h_nu_A_Py.Fill(t.nu_A_Py)
+    h_nu_A_PT.Fill(np.sqrt(t.nu_A_Px**2 + t.nu_A_Py**2)) 
+    h_nu_A_daughter1.Fill(t.nu_A_daughter1) 
+    h_nu_A_daughter2.Fill(t.nu_A_daughter2)
+    h_nu_A_mother1.Fill(t.nu_A_mother1)
+    h_nu_A_mother2.Fill(t.nu_A_mother2)
+    h_nu_A_pdg_id.Fill(t.nu_A_pdg_id)
+
+    h_nu_B_Px.Fill(t.nu_B_Px)
+    h_nu_B_Py.Fill(t.nu_B_Py)
+    h_nu_B_PT.Fill(np.sqrt(t.nu_B_Px**2 + t.nu_B_Py**2)) 
 
 ##############################################
 # Draw all histograms and save them.
@@ -108,8 +128,6 @@ h_W_A_Px.Draw("E") # put error bars
 c.SaveAs(outDir + "h_W_A_Px.pdf")
 h_W_A_Py.Draw("E")
 c.SaveAs(outDir + "h_W_A_Py.pdf")
-h_W_A_PT.Draw("E")
-c.SaveAs(outDir + "h_W_A_PT.pdf") 
 h_W_A_daughter1.Draw("E")
 c.SaveAs(outDir + "h_W_A_daughter1.pdf")
 h_W_A_daughter2.Draw("E")
@@ -120,7 +138,6 @@ h_W_A_mother2.Draw("E")
 c.SaveAs(outDir + "h_W_A_mother2.pdf")
 h_W_A_pdg_id.Draw("E")
 c.SaveAs(outDir + "h_W_A_pdg_id.pdf")
-
 
 h_ell_A_Px.Draw("E")
 c.SaveAs(outDir + "h_ell_A_Px.pdf")
@@ -156,10 +173,33 @@ c.SaveAs(outDir + "h_ell_B_mother2.pdf")
 h_ell_B_pdg_id.Draw("E")
 c.SaveAs(outDir + "h_ell_B_pdg_id.pdf")
 
+h_nu_A_Px.Draw("E")
+c.SaveAs(outDir + "h_nu_A_Px.pdf")
+h_nu_A_Py.Draw("E")
+c.SaveAs(outDir + "h_nu_A_Py.pdf")
+h_nu_A_PT.Draw("E")
+c.SaveAs(outDir + "h_nu_A_PT.pdf") 
+h_nu_A_daughter1.Draw("E")
+c.SaveAs(outDir + "h_nu_A_daughter1.pdf")
+h_nu_A_daughter2.Draw("E")
+c.SaveAs(outDir + "h_nu_A_daughter2.pdf")
+h_nu_A_mother1.Draw("E")
+c.SaveAs(outDir + "h_nu_A_mother1.pdf")
+h_nu_A_mother2.Draw("E")
+c.SaveAs(outDir + "h_nu_A_mother2.pdf")
+h_nu_A_pdg_id.Draw("E")
+c.SaveAs(outDir + "h_nu_A_pdg_id.pdf")
+
+h_nu_B_Px.Draw("E")
+c.SaveAs(outDir + "h_nu_B_Px.pdf")
+h_nu_B_Py.Draw("E")
+c.SaveAs(outDir + "h_nu_B_Py.pdf")
+h_nu_B_PT.Draw("E")
+c.SaveAs(outDir + "h_nu_B_PT.pdf") 
+
 # save to ROOT output files
 h_W_A_Px.Write()
 h_W_A_Py.Write()
-h_W_A_PT.Write() 
 h_W_A_daughter1.Write()
 h_W_A_daughter2.Write() 
 h_W_A_mother1.Write() 
@@ -183,5 +223,18 @@ h_ell_B_daughter2.Write()
 h_ell_B_mother1.Write()
 h_ell_B_mother2.Write()
 h_ell_B_pdg_id.Write()
+
+h_nu_A_Px.Write() 
+h_nu_A_Py.Write() 
+h_nu_A_PT.Write() 
+h_nu_A_daughter1.Write() 
+h_nu_A_daughter2.Write() 
+h_nu_A_mother1.Write() 
+h_nu_A_mother2.Write() 
+h_nu_A_pdg_id.Write() 
+
+h_nu_B_Px.Write() 
+h_nu_B_Py.Write() 
+h_nu_B_PT.Write() 
 
 f_outputRoot.Close()

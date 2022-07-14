@@ -21,7 +21,7 @@ outDir = "/Users/juliakim/Documents/mT2DCAnalysisPlots/"
 # Define tree 
 ##############################################
 f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
-tree = ROOT.TTree("tree", "tree storing mt2dc calculation results") 
+tree = ROOT.TTree("results", "tree storing mt2dc calculation results") 
 
 # create float array pointers 
 mT2dc_diff = array('d', [0]) # sign(+-) => may be used in weighted averages calculation 
@@ -34,6 +34,7 @@ sub_pT_min_over_met = array('d', [0]) # min(sub_pT_sideA, sub_pT_sideB)/met
 alpha = array('d', [0])
 constraint_pT_cut = array('d', [0]) 
 calc_speed = array('d', [0]) # 1 = fast, 0 = slow 
+success = array('d', [0]) # 1 = success, 0 = failure 
 
 # create branches
 tree.Branch("mT2dc_diff", mT2dc_diff, 'mT2dc_diff/D') 
@@ -46,6 +47,7 @@ tree.Branch("sub_pT_min_over_met", sub_pT_min_over_met, 'sub_pT_min_over_met/D')
 tree.Branch("alpha", alpha, 'alpha/D') 
 tree.Branch("constraint_pT_cut", constraint_pT_cut, 'constraint_pT_cut/D') 
 tree.Branch("calc_speed", calc_speed, 'calc_speed/D') 
+tree.Branch("success", success, 'success/D') 
                 
 ##############################################
 # Create plots of variables in input ROOT file 
@@ -74,15 +76,22 @@ m_W = 80 # GeV
 m_t = 173 # GeV
 nentries = t.GetEntries() 
 calcStyle = input("Enter 'fast' or 'slow':") 
-alphaList = np.linspace(0, 1, 20) 
+alphaList = np.linspace(0, 1, 20)  
 pT_cut = 20 # GeV 
 
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-for i in range(30):
-    if ((i % 1000 == 0)): 
-       print("Processing entry", i, "=", i*1.0/nentries*100.0, "%.")    
+for i in range(20):
+    if (( i % 1000 == 0 )): 
+       print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
+    if t.LoadTree(i) < 0:
+       print("**could not load tree for entry #%s") % i
+       break
+    nb = t.GetEntry(i) 
+    if nb <= 0:
+       # no data
+       continue
     print('event', i) 
     
     # RETRIEVE INFORMATION FROM TREE TO FILL HISTOGRAMS. 
@@ -218,7 +227,7 @@ for i in range(30):
             
             # > CONSTRAINED 
             if sol.success == True: 
-                # filling tree 
+                # filling tree  
                 mT2dc_diff[0] = sol.fun - (alphaVal*mt2_W + (1-alphaVal)*mt2_t_11_22)
                 mT2dc[0] = sol.fun
                 mT2prime_W[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x)
@@ -229,12 +238,13 @@ for i in range(30):
                 alpha[0] = alphaVal 
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 1 
+                success[0] = 1
                 
                 tree.Fill() 
                
             else:
                 # optimise objective function using COBYLA in lieu of SLSQP (which encounters no exit mode 8 error) 
-                sol_alt = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(guesses)], method='COBYLA', 
+                sol_alt = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(objective_at_guess)], method='COBYLA', 
                           options={'maxiter': 2000, 'ftol': 1e-7,'disp': True}, constraints=cons) # alternative solution  
                 # filling tree 
                 mT2dc_diff[0] = sol_alt.fun - (alphaVal*mt2_W + (1-alphaVal)*mt2_t_11_22)
@@ -248,6 +258,11 @@ for i in range(30):
                 alpha[0] = alphaVal 
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 1 
+                
+                if sol_alt.success == True:
+                    success[0] = 1
+                else:
+                    success[0] = 0 
                 
                 tree.Fill() 
             
@@ -263,6 +278,7 @@ for i in range(30):
             alpha[0] = alphaVal 
             constraint_pT_cut[0] = 0 
             calc_speed[0] = 1 
+            success[0] = 1 
             
             tree.Fill() 
                          
@@ -315,9 +331,10 @@ for i in range(30):
                 alpha[0] = alphaVal 
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 0 
+                success[0] = 1 
                 
                 tree.Fill() 
-                
+             
             else: 
                 sol_alt = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(minimised_objective_at_guess_fun)],
                                       method='COBYLA', options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}, constraints=cons)
@@ -334,6 +351,11 @@ for i in range(30):
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 0 
                 
+                if sol_alt.success == True:
+                    success[0] = 1
+                else:
+                    success[0] = 0 
+                
                 tree.Fill() 
                 
             # > UNCONSTRAINED 
@@ -347,7 +369,8 @@ for i in range(30):
                                                                                         sol_UC.x))/np.linalg.norm(met[:2]))
             alpha[0] = alphaVal 
             constraint_pT_cut[0] = 0 
-            calc_speed[0] = 0 
+            calc_speed[0] = 0
+            success[0] = 1 
             
             tree.Fill() 
  
