@@ -20,27 +20,36 @@ outDir = "/Users/juliakim/Documents/mT2DCAnalysisPlots/"
 ##############################################
 # Define tree 
 ##############################################
-f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root", "recreate")
+f_outputRoot = ROOT.TFile.Open("/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v10.root", "recreate")
 tree = ROOT.TTree("results", "tree storing mt2dc calculation results") 
 
 # create float array pointers 
 mT2dc_diff = array('d', [0]) # sign(+-) => may be used in weighted averages calculation 
 mT2dc = array('d', [0])
+mT2_W = array('d', [0]) 
 mT2prime_W = array('d', [0]) 
+mT2prime_W_subC = array('d', [0]) # consider only mT2_W < 1 events 
+mT2_t = array('d', [0]) 
 mT2prime_t = array('d', [0]) 
+mT2prime_t_subC = array('d', [0]) # consider only mT2_W < 1 events 
 sub_pT_sideA = array('d', [0]) 
 sub_pT_sideB = array('d', [0]) 
 sub_pT_min_over_met = array('d', [0]) # min(sub_pT_sideA, sub_pT_sideB)/met
 alpha = array('d', [0])
 constraint_pT_cut = array('d', [0]) 
+constraint_pT_subcut[0] = array('d', [0]) 
 calc_speed = array('d', [0]) # 1 = fast, 0 = slow 
 success = array('d', [0]) # 1 = success, 0 = failure 
 
 # create branches
 tree.Branch("mT2dc_diff", mT2dc_diff, 'mT2dc_diff/D') 
 tree.Branch("mT2dc", mT2dc, 'mT2dc/D') 
+tree.Branch("mT2_W", mT2_W, 'mT2_W/D') 
 tree.Branch("mT2prime_W", mT2prime_W, 'mT2prime_W/D') 
+tree.Branch("mT2prime_W_subC", mT2prime_W_subC, 'mT2prime_W_subC/D') 
+tree.Branch("mT2_t", mT2_t, 'mT2_t/D') 
 tree.Branch("mT2prime_t", mT2prime_t, 'mT2prime_t/D') 
+tree.Branch("mT2prime_t_subC", mT2prime_t_subC, 'mT2prime_t_subC/D') 
 tree.Branch("sub_pT_sideA", sub_pT_sideA, 'sub_pT_sideA/D') 
 tree.Branch("sub_pT_sideB", sub_pT_sideB, 'sub_pT_sideB/D') 
 tree.Branch("sub_pT_min_over_met", sub_pT_min_over_met, 'sub_pT_min_over_met/D') 
@@ -82,7 +91,7 @@ pT_cut = 20 # GeV
 ##############################################
 # Main analysis - loop over all events
 ##############################################
-for i in range(20):
+for i in range(20000):
     if (( i % 1000 == 0 )): 
        print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
     if t.LoadTree(i) < 0:
@@ -153,7 +162,7 @@ for i in range(20):
     mt2_t_min = min(mt2_t_11_22, mt2_t_12_21)
 
     h_mT2_W.Fill(mt2_W)
-    h_mT2_t_11_22.Fill(mt2_t_11_22)
+    h_mT2_t_11_22.Fill(mt2_t_11_22) 
     h_mT2_t_12_21.Fill(mt2_t_12_21)
     h_mT2_t_min.Fill(mt2_t_min)
     
@@ -241,7 +250,13 @@ for i in range(20):
                 success[0] = 1
                 
                 tree.Fill() 
-               
+                
+                if mT2_W < 1:
+                    mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol.x) 
+                    mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol.x) 
+                    constraint_pT_subcut[0] = pT_cut 
+                    tree.Fill() 
+                
             else:
                 # optimise objective function using COBYLA in lieu of SLSQP (which encounters no exit mode 8 error) 
                 sol_alt = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(objective_at_guess)], method='COBYLA', 
@@ -259,6 +274,12 @@ for i in range(20):
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 1 
                 
+                if mT2_W < 1:
+                    mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                    mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                    constraint_pT_subcut[0] = pT_cut 
+                    tree.Fill() 
+                
                 if sol_alt.success == True:
                     success[0] = 1
                 else:
@@ -275,12 +296,18 @@ for i in range(20):
             sub_pT_sideB[0] = np.linalg.norm(met[:2] - sol_UC.x)
             sub_pT_min_over_met[0] = (min(np.linalg.norm(sol_UC.x), np.linalg.norm(met[:2] - 
                                                                                         sol_UC.x))/np.linalg.norm(met[:2]))
+            mT2_W[0] = mt2_W 
+            mT2_t[0] = mt2_t 
             alpha[0] = alphaVal 
             constraint_pT_cut[0] = 0 
             calc_speed[0] = 1 
-            success[0] = 1 
+            success[0] = 1
             
-            tree.Fill() 
+            if mT2_W < 1:
+                mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x) 
+                mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x) 
+                constraint_pT_subcut[0] = 0 
+                tree.Fill() 
                          
     elif calcStyle == 'slow':
         for alphaVal in alphaList: 
@@ -335,6 +362,11 @@ for i in range(20):
                 
                 tree.Fill() 
              
+                if mT2_W < 1:
+                    mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                    mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x)
+                    constraint_pT_subcut[0] = pT_cut 
+                    tree.Fill() 
             else: 
                 sol_alt = so.minimize(objective, x0 = invis_sideA_array_guesses[np.argmin(minimised_objective_at_guess_fun)],
                                       method='COBYLA', options={'maxiter': 2000, 'ftol': 1e-07,'disp': True}, constraints=cons)
@@ -350,6 +382,12 @@ for i in range(20):
                 alpha[0] = alphaVal 
                 constraint_pT_cut[0] = pT_cut  
                 calc_speed[0] = 0 
+                
+                if mT2_W < 1:
+                    mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                    mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_alt.x) 
+                    constraint_pT_subcut[0] = pT_cut 
+                    tree.Fill() 
                 
                 if sol_alt.success == True:
                     success[0] = 1
@@ -367,6 +405,8 @@ for i in range(20):
             sub_pT_sideB[0] = np.linalg.norm(met[:2] - sol_UC.x)
             sub_pT_min_over_met[0] = (min(np.linalg.norm(sol_UC.x), np.linalg.norm(met[:2] - 
                                                                                         sol_UC.x))/np.linalg.norm(met[:2]))
+            mT2_W[0] = mt2_W 
+            mT2_t[0] = mt2_t 
             alpha[0] = alphaVal 
             constraint_pT_cut[0] = 0 
             calc_speed[0] = 0
@@ -374,7 +414,14 @@ for i in range(20):
             
             tree.Fill() 
  
-    
+            if mT2_W < 1:
+                mT2prime_W_subC[0] = DC.get_alpha_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x) 
+                mT2prime_t_subC[0] = DC.get_beta_term(vis_sideA_array, vis_sideB_array, met, sol_UC.x) 
+                constraint_pT_subcut[0] = 0
+                tree.Fill() 
+                
+                
+                
 ##############################################
 # Draw all histograms.
 ##############################################
