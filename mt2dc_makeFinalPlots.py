@@ -12,16 +12,16 @@
 import ROOT
 
 ROOT.gROOT.ForceStyle()
-#ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetOptStat(0)
 ROOT.TH1.SetDefaultSumw2()
 
 ##############################################
 # Define the input and output root files
 ##############################################
-inFileName = "/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_v01.root" 
+inFileName = "/Users/juliakim/Documents/2022_06_June_15_truth_analysis_v01.root" 
 inputFile = ROOT.TFile(inFileName, "read")
-tree = inputFile.Get("tree")
-type(t)
+inFileName2 = '/Users/juliakim/Documents/2022_05_May_10_mt2dc_analysis_FOROVERLAY.root'
+inputFile2 = ROOT.TFile(inFileName2, "read") 
 outDir = "/Users/juliakim/Documents/styledPlotsOutputs/"  
 
 ##############################################
@@ -29,31 +29,6 @@ outDir = "/Users/juliakim/Documents/styledPlotsOutputs/"
 ##############################################
 m_W = 80 # GeV 
 m_t = 173 # GeV
-nentries = tree.GetEntries() 
-
-##############################################
-# Produce & fill histograms  
-##############################################
-# mut2dc, mutdcW_prime, mut2dct_prime distributions
-ROOT.gStyle.SetTitleFontSize(0.05)
-ROOT.gStyle.SetLabelFont(42, "XYZ")
-ROOT.gStyle.SetTitleOffset(1)
-ROOT.gStyle.SetTitleOffset(2, "XY")
-ROOT.gStyle.SetTitleOffset(1.25, "Z")
-ROOT.gStyle.SetPalette(1)
-
-h_muT2dc = ROOT.TH2F("h_muT2dc", "muT2dc; alpha; muT2dc [GeV]; Number of entries/(0.05, 0.1 GeV)", 20, 0, 1, 10, 0, 1) 
-h_muT2prime_W = ROOT.TH2F("h_muT2prime_W","muT2prime_W; alpha; muT2prime_W [GeV]; Number of entries/(0.05, 0.1 GeV)", 20, 0, 1, 10, 0, 1) 
-h_muT2prime_t = ROOT.TH2F("h_muT2prime_t","muT2prime_t; alpha; muT2prime_t [GeV]; Number of entries/(0.05, 0.1 GeV)", 20, 0, 1, 10, 0, 1) 
-
-for i in range(1000):
-    if (( i % 1000 == 0 )): 
-       print(":: Processing entry ", i, " = ", i*1.0/nentries*100.0, "%.")    
-    
-    h_muT2dc.Fill(tree.alpha, tree.mT2dc/(tree.alpha*m_W + (1-tree.alpha)*m_t)) 
-    
-    
-    
 
 ##############################################
 # Mt2dc Overlay Code 
@@ -78,26 +53,28 @@ colour8           =  ROOT.TColor(cbf_ReddishPurple,   0.80, 0.60, 0.70, "cbf_Red
 # c1 = new TCanvas("c1", "", 0, 0, 1000, 700)
 c1 = ROOT.TCanvas("c1", "")
 ROOT.gROOT.ForceStyle() 
-c1.SetLogy() # use 60 to set logarithmic y-axis scale 
+#c1.SetLogy() # use 60 to set logarithmic y-axis scale 
 
 plotCounter = 0
 plotCounter += 1
 print("plotCounter = ", plotCounter)
 
-histLabel__mtW_mt2 = "h_mT2_t_11_22" 
-histLabel__mtW_mt2prime = "mt'(t | alpha = 0)" 
-inputHist__mtW_mt2 = "h_mT2_t_11_22"  
-inputHist__mtW_mt2prime = "h_mT2dc_alpha_0" # h_mT2dc_alpha_1 (equivalent to) 
-xAxisDescription__mtW = "Transverse mass of t estimator [GeV]" 
+histLabel__mtW_mt2 = "#Sigma = max(#mbox{mT_{1}^{true}}, #mbox{mT_{2}^{true}})" 
+histLabel__mtW_mt2prime = "#mbox{m_{T2}}(W)" 
+inputHist__mtW_mt2 = "h_max_mT_true"  
+inputHist__mtW_mt2prime = "h_mT2_W" # h_mT2dc_alpha_1 (equivalent to) 
+xAxisDescription__mtW = "Transverse mass estimator [GeV]" 
 yAxisDescription__mtW = "Number of events / 1 GeV" 
-outFile__mtW = "mtt_overlay" 
-title__mtW = "Estimators of t transverse mass"
+outFile__mtW = "mT2_W_max_mT_true_overlay" 
+title__mtW = ""
 ratioMin = 0.1
-ratioMax = 4
+ratioMax = 20
 
 h_v1 = inputFile.Get(inputHist__mtW_mt2).Clone()
+h_v1.Scale(1./h_v1.Integral(), "width")
 h_v1.SetTitle("")
-h_v2 = inputFile.Get(inputHist__mtW_mt2prime).Clone()
+h_v2 = inputFile2.Get(inputHist__mtW_mt2prime).Clone()
+h_v2.Scale(1./h_v2.Integral(), "width")
 h_v2.SetTitle("")
 
 h_v1.GetXaxis().SetTitle(xAxisDescription__mtW)
@@ -118,8 +95,8 @@ overflow_v2 = h_v2.GetBinContent( h_v2.GetXaxis().GetNbins() + 1 )
 maxBinValue = 1.25 * max(maxBinYvalue_h_v1, maxBinYvalue_h_v2)   
 
 # Rebinning
-h_v1.Rebin(4)
-h_v2.Rebin(4)
+h_v1.Rebin(1)
+h_v2.Rebin(1)
 
 # Use this as part of shifting the y axis title position and not having it overlap the rest of the plot
 c1.SetLeftMargin(0.1)
@@ -140,7 +117,7 @@ rp.Draw()
 rp.GetLowerRefGraph().SetMinimum(ratioMin)
 rp.GetLowerRefGraph().SetMaximum(ratioMax)
 rp.GetLowerRefXaxis().SetTitle(xAxisDescription__mtW)
-rp.GetLowerRefYaxis().SetTitle("mt2(W) / mt2'(W)")
+rp.GetLowerRefYaxis().SetTitle("#Sigma / #mbox{m_{T2}}(W)") 
 
 # Format the overlayed histograms in the top panel
 rp.GetUpperPad().cd()
@@ -163,7 +140,7 @@ t.SetNDC()
 t.Draw()
 
 # Create a legend to define the different histograms for the reader
-leg = ROOT.TLegend(.68, .68, .75, .88)
+leg = ROOT.TLegend(.60, .60, .75, .80)
 leg.SetFillColor(0)
 leg.SetBorderSize(0)
 leg.SetTextFont(42)
